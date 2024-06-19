@@ -1,66 +1,112 @@
-import React, { useRef, useState } from 'react';
-import { View, StyleSheet, Text, Platform, TouchableOpacity, Animated } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, StyleSheet, Text, Platform, TouchableOpacity, Image, Animated, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import MenuContent from '../components/menuContent';
-import { Channel, ChannelList, ChannelHeader, Chat, MessageInput, MessageList, OverlayProvider } from 'stream-chat-expo';
+import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
 import { useStreamChat } from '../context/StreamChatContext';
 import AppLoading from 'expo-app-loading';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [channel, setChannel] = useState(null);
-  // console.log(channel);
-  const menuAnimation = useRef(new Animated.Value(0)).current;
-
-  const toggleMenu = () => {
-    Animated.timing(menuAnimation, {
-      toValue: isMenuOpen ? 0 : 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const menuTranslateX = menuAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-300, 0],
-  });
+  const [isSearchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchBarWidth = useRef(new Animated.Value(0)).current;
 
   const [fontsLoaded] = useFonts({
     'Bradley-Hand': require('../assets/fonts/bradhitc.ttf'),
   });
 
+  useEffect(() => {
+    Animated.timing(searchBarWidth, {
+      toValue: isSearchVisible ? 320 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [isSearchVisible]);
+
+  const onProfilePressed = () => {
+    navigation.navigate('Profile');
+  };
+
   const onChannelPressed = (channel) => {
     setChannel(channel);
     navigation.navigate('Channel', { channelId: channel.id });
-    
   };
+
+  const toggleSearchBar = () => {
+    setSearchVisible(!isSearchVisible);
+  };
+
+  const closeSearchBar = () => {
+    setSearchVisible(false);
+  };
+
+  if (!fontsLoaded || !isUserConnected) {
+    return <AppLoading />;
+  }
 
   return (
     <OverlayProvider>
       <Chat client={client}>
         <View style={styles.container}>
-          <Animated.View style={[styles.menu, { transform: [{ translateX: menuTranslateX }] }]}>
-            <MenuContent onCloseMenu={toggleMenu} />
-          </Animated.View>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <TouchableOpacity style={{ paddingLeft: 10 }} onPress={toggleMenu}>
-                <Ionicons name="menu-outline" size={24} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Gizmo</Text>
+              {!isSearchVisible && <Text style={styles.headerTitle}>GIZMO</Text>}
             </View>
-            <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => {}}>
-              <Ionicons name="search-outline" size={24} color="white" />
-            </TouchableOpacity>
+            <View style={styles.headerRight}>
+              {isSearchVisible && (
+                <Animated.View style={[styles.searchBar, { width: searchBarWidth }]}>
+                  <TouchableOpacity style={{ paddingLeft: 10 }} onPress={closeSearchBar}>
+                    <Ionicons name="close-outline" size={24} color="#4B0082" />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                  />
+                  <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => {}}>
+                    <Ionicons name="search-outline" size={24} color="#4B0082" />
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+              {!isSearchVisible && (
+                <TouchableOpacity style={{ paddingRight: 10 }} onPress={toggleSearchBar}>
+                  <Ionicons name="search-outline" size={24} color="white" />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.profilePictureContainer} onPress={onProfilePressed}>
+                <Image
+                  source={{ uri: client.user.image }}
+                  style={styles.profilePicture}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
           <ChannelList
-            onSelect={(onChannelPressed)}
-            // filters={{ type: 'messaging' }}
+            onSelect={onChannelPressed}
             sort={{ last_message_at: -1 }}
             options={{ state: true, watch: true }}
+            itemProps={{
+              container: {
+                justifyContent: 'center',
+                paddingVertical: 15,
+                paddingHorizontal: 10,
+                borderBottomColor: '#ccc',
+                borderBottomWidth: 0,
+              },
+              title: {
+                fontSize: 18,
+              },
+              subtitle: {
+                fontSize: 14,
+                color: '#888',
+              },
+              avatar: {
+                size: 50,
+              },
+            }}
           />
         </View>
       </Chat>
@@ -78,16 +124,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: Platform.OS === 'android' ? 40 : 0,
+    paddingTop: Platform.OS === 'android' ? 50 : 0,
     backgroundColor: '#4B0082',
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
-    paddingVertical: 15,
-    ...Platform.select({
-      android: {
-        elevation: 20,
-      },
-    }),
+    paddingVertical: 20,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -100,20 +141,32 @@ const styles = StyleSheet.create({
     fontFamily: 'Bradley-Hand',
     marginLeft: 20,
   },
-  menu: {
-    position: 'absolute',
-    top: 0,
-    left: -1,
-    bottom: 0,
-    width: 300,
-    backgroundColor: '#fff',
-    zIndex: 1,
-    paddingVertical: 10,
-    ...Platform.select({
-      android: {
-        elevation: 500,
-      },
-    }),
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchBar: {
+    height: 40,
+    marginRight: 10,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  searchInput: {
+    flex: 1,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+  profilePictureContainer: {
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  profilePicture: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
   },
 });
 

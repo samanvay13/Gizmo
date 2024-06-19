@@ -5,6 +5,14 @@ import { useStreamChat } from '../context/StreamChatContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const LoadingChannelScreen = () => (
+  <View style={styles.loadingContainer}>
+    <Ionicons name="chatbubbles-outline" size={100} color="#4B0082" />
+    <Text style={styles.loadingContainerText}>GIZMO</Text>
+  </View>
+);
 
 const ChannelScreen = ({ route, navigation }) => {
   const { client } = useStreamChat();
@@ -32,11 +40,7 @@ const ChannelScreen = ({ route, navigation }) => {
   }, [channelId]);
 
   if (!channel) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading Chat...</Text>
-      </View>
-    );
+    return <LoadingChannelScreen />;
   }
 
   return (
@@ -46,7 +50,7 @@ const ChannelScreen = ({ route, navigation }) => {
           <View style={styles.container}>
             <View style={styles.header}>
               <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.goBack()}>
-                <Ionicons name="chevron-back-outline" size={25} color="white" />
+                <Ionicons name="chevron-back-outline" size={24} color="white" />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>{channel.data.name}</Text>
               {channel.data.image && (
@@ -76,6 +80,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingContainerText: {
+    color: '#4B0082',
+    fontSize: 20,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -90,13 +98,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 25,
+    fontSize: 20,
     marginLeft: 20,
   },
   headerImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     marginLeft: 10,
   },
 });

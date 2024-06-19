@@ -3,7 +3,7 @@ import { StreamChat } from 'stream-chat';
 
 const StreamChatContext = createContext();
 
-const client = StreamChat.getInstance('yv4qhk3b6xas');
+const client = StreamChat.getInstance(process.env.EXPO_PUBLIC_STREAM_API_KEY);
 
 export const StreamChatProvider = ({ children }) => {
   const [isUserConnected, setIsUserConnected] = useState(false);
@@ -15,6 +15,7 @@ export const StreamChatProvider = ({ children }) => {
           {
             id: 'omantix',
             name: 'omantix',
+            image: 'https://i.pinimg.com/564x/36/a2/e2/36a2e242bfe3ac039e0618fbaaef7596.jpg',
           },
           client.devToken('omantix')
         );

@@ -31,9 +31,16 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/bradhitc.tff"]
+          "fonts": [
+            "./assets/fonts/bradhitc.tff"
+          ]
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e7c5c77b-d0dc-4daf-b94e-042fc7e1914a"
+      }
+    }
   }
 }

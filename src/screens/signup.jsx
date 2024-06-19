@@ -33,7 +33,7 @@ const SignupScreen = () => {
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Already a registered user? </Text>
                     <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                        <Text style={styles.footerText}>Sign In</Text>
+                        <Text style={styles.footerTextLink}>Sign In</Text>
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -112,6 +112,10 @@ const styles = StyleSheet.create({
     },
     footerText: {
         color: '#fff',
+        fontSize: 16,
+    },
+    footerTextLink: {
+        color: '#FF00FF',
         fontSize: 16,
     },
 });

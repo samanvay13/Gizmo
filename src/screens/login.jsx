@@ -26,9 +26,9 @@ const LoginScreen = () => {
                     secureTextEntry
                 />
                 <View style={styles.footer}>
-                    <Text style={styles.footerText}>Forgot Password?</Text>
+                    <Text style={styles.footerText}>Not registered yet? </Text>
                     <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                        <Text style={styles.footerText}>Sign Up</Text>
+                        <Text style={styles.footerTextLink}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -103,11 +103,15 @@ const styles = StyleSheet.create({
     },
     footer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         width: '95%',
     },
     footerText: {
         color: '#fff',
+        fontSize: 16,
+    },
+    footerTextLink: {
+        color: '#FF00FF',
         fontSize: 16,
     },
 });
