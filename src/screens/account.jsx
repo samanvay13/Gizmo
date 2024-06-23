@@ -1,80 +1,96 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
-import { StyleSheet, View, Alert } from 'react-native'
-import { Button, Input } from '@rneui/themed'
-import { Session } from '@supabase/supabase-js'
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { StyleSheet, View, Alert, Text } from 'react-native';
+import { Button, Input } from '@rneui/themed';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthProvider';
 
-export default function Account(session) {
-  const [loading, setLoading] = useState(true)
-  const [username, setUsername] = useState('')
-  const [website, setWebsite] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+export default function Account() {
+  const { session, signOut } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState('');
+  const [contact_number, setContact_number] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (session) getProfile()
-  }, [session])
+    if (session) getProfile();
+  }, [session]);
 
   async function getProfile() {
     try {
-      setLoading(true)
-      if (!session?.user) throw new Error('No user on the session!')
+      setLoading(true);
+      if (!session?.user) throw new Error('No user on the session!');
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`username, website, avatar_url`)
+        .select(`username, contact_number, avatar_url`)
         .eq('id', session?.user.id)
-        .single()
+        .single();
       if (error && status !== 406) {
-        throw error
+        throw error;
       }
 
       if (data) {
-        setUsername(data.username)
-        setWebsite(data.website)
-        setAvatarUrl(data.avatar_url)
+        setUsername(data.username);
+        setContact_number(data.contact_number);
+        setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert(error.message)
+        Alert.alert(error.message);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  async function updateProfile({
-    username,
-    website,
-    avatar_url,
-  }) {
+  async function updateProfile({ username, contact_number, avatar_url }) {
     try {
-      setLoading(true)
-      if (!session?.user) throw new Error('No user on the session!')
+      setLoading(true);
+      if (!session?.user) throw new Error('No user on the session!');
 
       const updates = {
         id: session?.user.id,
         username,
-        website,
+        contact_number,
         avatar_url,
         updated_at: new Date(),
-      }
+      };
 
-      const { error } = await supabase.from('profiles').upsert(updates)
+      const { error } = await supabase.from('profiles').upsert(updates);
 
       if (error) {
-        throw error
+        throw error;
       }
     } catch (error) {
       if (error instanceof Error) {
-        Alert.alert(error.message)
+        Alert.alert(error.message);
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
+  const handleLogout = () => {
+    signOut();
+    navigation.navigate('Login');
+  };
+
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.goBack()}>
+          <Ionicons name="close-outline" size={30} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Edit Profile</Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="exit-outline" size={24} color="white" />
+          <Text style={styles.logoutText}>Sign-out</Text>
+        </TouchableOpacity>
+      </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Input label="Email" value={session?.user?.email} disabled />
       </View>
@@ -82,35 +98,59 @@ export default function Account(session) {
         <Input label="Username" value={username || ''} onChangeText={(text) => setUsername(text)} />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Website" value={website || ''} onChangeText={(text) => setWebsite(text)} />
+        <Input label="Contact Number" value={contact_number || ''} onChangeText={(text) => setContact_number(text)} />
       </View>
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
           title={loading ? 'Loading ...' : 'Update'}
-          onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
+          onPress={() => updateProfile({ username, contact_number, avatar_url: avatarUrl })}
           disabled={loading}
         />
       </View>
 
       <View style={styles.verticallySpaced}>
-        <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
+        <Button title="Sign Out" onPress={handleLogout} />
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingTop: 40,
+    backgroundColor: '#4B0082',
+    paddingVertical: 18,
+  },
+  headerTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 24,
+    marginLeft: 20,
+  },
+  logoutButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingRight: 10,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 12,
+    marginTop: 4,
   },
   verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
+    marginTop: 40,
+    padding: 12,
     alignSelf: 'stretch',
   },
   mt20: {
     marginTop: 20,
   },
-})
+});

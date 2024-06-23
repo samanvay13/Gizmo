@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Image } from 'react-native';
+import { View, StyleSheet, Text, Image, ImageBackground } from 'react-native';
 import { Chat, Channel, MessageList, MessageInput, OverlayProvider } from 'stream-chat-expo';
 import { useStreamChat } from '../context/StreamChatContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+
+export const theme = {
+  messageList: {
+    container: {
+      backgroundColor: 'transparent',
+    },
+  },
+};
+
+const IMAGE_URI = 'https://images.unsplash.com/photo-1549125764-91425ca48850?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8NjF8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60';
 
 const LoadingChannelScreen = () => (
   <View style={styles.loadingContainer}>
@@ -45,9 +54,12 @@ const ChannelScreen = ({ route, navigation }) => {
 
   return (
     <OverlayProvider>
-      <Chat client={client}>
+      <Chat client={client} theme={theme}>
         <Channel channel={channel}>
-          <View style={styles.container}>
+          <ImageBackground
+            style={{ flex: 1 }}
+            source={{ uri: IMAGE_URI }}
+          >
             <View style={styles.header}>
               <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.goBack()}>
                 <Ionicons name="chevron-back-outline" size={24} color="white" />
@@ -61,10 +73,8 @@ const ChannelScreen = ({ route, navigation }) => {
               )}
             </View>
             <MessageList />
-            <SafeAreaView edges={['bottom']}>
-              <MessageInput />
-            </SafeAreaView>
-          </View>
+            <MessageInput />
+          </ImageBackground>
         </Channel>
       </Chat>
     </OverlayProvider>

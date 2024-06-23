@@ -1,14 +1,34 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useState } from "react";
 import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from "../context/AuthProvider";
 
 const SignupScreen = () => {
 
     const navigation = useNavigation();
+    const { signIn, signUp } = useAuth();
+    const [email, setEmail] = useState('');
+    const [contact_number, setContact_number] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+  
+    const handleSignUp = async () => {
+      setLoading(true);
+      try {
+        await signUp(email, contact_number, username, password);
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+      Alert.alert('Account registered successfully!');
+      setLoading(false);
+    };
+
+    const IMAGE_URI = 'https://i.pinimg.com/564x/08/6c/d0/086cd0eaa64a5b2b19b9e771f61b2cb9.jpg';
 
     return (
-        <ImageBackground source={require('../assets/backgrounds/loginBackground6.png')} style={styles.container}>
+        <ImageBackground source={{ uri: IMAGE_URI }} style={styles.container}>
             <View style={styles.loginHeader}>
                 <Text style={styles.loginHeaderText}>Join the Conversation.{"\n"}Register Now!</Text>
             </View>
@@ -16,19 +36,40 @@ const SignupScreen = () => {
                 <Text style={styles.cardHeaderText}>Sign-Up</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Mobile Number"
+                    label="Email"
+                    onChangeText={(text) => setEmail(text)}
+                    value={email}
+                    placeholder="Email"
                     placeholderTextColor="#aaa"
+                    autoCapitalize={'none'}
                 />
                 <TextInput
                     style={styles.input}
+                    label="Contact Number"
+                    onChangeText={(text) => setContact_number(text)}
+                    value={contact_number}
+                    placeholder="Contact Number"
+                    placeholderTextColor="#aaa"
+                    autoCapitalize={'none'}
+                />
+                <TextInput
+                    style={styles.input}
+                    label="Username"
+                    onChangeText={(text) => setUsername(text)}
+                    value={username}
                     placeholder="Username"
                     placeholderTextColor="#aaa"
+                    autoCapitalize={'none'}
                 />
                 <TextInput
                     style={styles.input}
+                    label="Password"
+                    onChangeText={(text) => setPassword(text)}
+                    value={password}
+                    secureTextEntry={true}
                     placeholder="Password"
                     placeholderTextColor="#aaa"
-                    secureTextEntry
+                    autoCapitalize={'none'}
                 />
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Already a registered user? </Text>
@@ -36,7 +77,7 @@ const SignupScreen = () => {
                         <Text style={styles.footerTextLink}>Sign In</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <TouchableOpacity onPress={handleSignUp}>
                     <LinearGradient
                         colors={['#8A2BE2', '#4B0082']}
                         style={styles.loginButton}
@@ -115,7 +156,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     footerTextLink: {
-        color: '#FF00FF',
+        color: 'yellow',
         fontSize: 16,
     },
 });

@@ -1,14 +1,32 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, AppState } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from "../context/AuthProvider";
 
 const LoginScreen = () => {
 
     const navigation = useNavigation();
+    const { signIn, signUp } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+  
+    const handleLogin = async () => {
+      setLoading(true);
+      try {
+        await signIn(email, password);
+        navigation.navigate('Home');
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+      setLoading(false);
+    };
+
+    const IMAGE_URI = 'https://i.pinimg.com/564x/08/6c/d0/086cd0eaa64a5b2b19b9e771f61b2cb9.jpg';
 
     return (
-        <ImageBackground source={require('../assets/backgrounds/loginBackground6.png')} style={styles.container}>
+        <ImageBackground source={{ uri: IMAGE_URI }} style={styles.container}>
             <View style={styles.loginHeader}>
                 <Text style={styles.loginHeaderText}>Gizmo</Text>
             </View>
@@ -16,14 +34,22 @@ const LoginScreen = () => {
                 <Text style={styles.cardHeaderText}>Sign-In</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Username"
+                    label="Email"
+                    onChangeText={(text) => setEmail(text)}
+                    value={email}
+                    placeholder="Email"
                     placeholderTextColor="#aaa"
+                    autoCapitalize={'none'}
                 />
                 <TextInput
                     style={styles.input}
+                    label="Password"
+                    onChangeText={(text) => setPassword(text)}
+                    value={password}
+                    secureTextEntry={true}
                     placeholder="Password"
                     placeholderTextColor="#aaa"
-                    secureTextEntry
+                    autoCapitalize={'none'}
                 />
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>Not registered yet? </Text>
@@ -31,7 +57,7 @@ const LoginScreen = () => {
                         <Text style={styles.footerTextLink}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                <TouchableOpacity onPress={handleLogin}>
                     <LinearGradient
                         colors={['#8A2BE2', '#4B0082']}
                         style={styles.loginButton}
@@ -69,6 +95,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.2)', // Transparent white for glass effect
         borderRadius: 10,
         padding: 30,
+        zIndex: 1,
     },
     cardHeaderText: {
         paddingHorizontal: 20,
@@ -111,7 +138,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     footerTextLink: {
-        color: '#FF00FF',
+        color: 'yellow',
         fontSize: 16,
     },
 });

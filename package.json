@@ -18,7 +18,7 @@
     "@react-navigation/stack": "^6.3.29",
     "@rneui/themed": "^4.0.0-rc.8",
     "@stream-io/flat-list-mvcp": "^0.10.3",
-    "@supabase/supabase-js": "^2.43.4",
+    "@supabase/supabase-js": "^2.43.5",
     "expo": "~51.0.7",
     "expo-app-loading": "^2.1.1",
     "expo-file-system": "~17.0.1",

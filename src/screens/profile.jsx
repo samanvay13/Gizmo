@@ -1,27 +1,92 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, Image, TouchableOpacity, TextInput, ImageBackground } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useStreamChat } from '../context/StreamChatContext';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../context/AuthProvider';
+import { supabase } from '../lib/supabase';
+import { BackgroundImage } from '@rneui/themed/dist/config';
 
-const ProfileScreen = ({ navigation }) => {
-  const { client } = useStreamChat();
-  const [username, setUsername] = useState(client.user.name);
-  const [contactNumber, setContactNumber] = useState('');
-  const [password, setPassword] = useState('');
+const ProfileScreen = () => {
+  const { session, signOut } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState('');
+  const [contact_number, setContactNumber] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (session) getProfile();
+  }, [session]);
+
+  async function getProfile() {
+    try {
+      setLoading(true);
+      if (!session?.user) throw new Error('No user on the session!');
+
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select(`username, contact_number, avatar_url`)
+        .eq('id', session?.user.id)
+        .single();
+        
+      if (error && status !== 406) {
+        throw error;
+      }
+
+      if (data) {
+        setUsername(data.username);
+        setContactNumber(data.contact_number);
+        setAvatarUrl(data.avatar_url);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function updateProfile() {
+    try {
+      setLoading(true);
+      if (!session?.user) throw new Error('No user on the session!');
+
+      const updates = {
+        id: session?.user.id,
+        username,
+        contact_number,
+        avatar_url: avatarUrl,
+        updated_at: new Date(),
+      };
+
+      const { error } = await supabase.from('profiles').upsert(updates);
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+      setLoading(false);
+      navigation.navigate('Home');
+    }
+  }
 
   const handleLogout = () => {
+    signOut();
     navigation.navigate('Login');
   };
 
-  const handleSave = () => {
-    navigation.navigate('Home');
-  };
+  const IMAGE_URI = 'https://i.pinimg.com/564x/cc/34/a3/cc34a35e193df5f9a722083c53e86b76.jpg';
 
   return (
-    <ImageBackground source={require('../assets/backgrounds/profileBackground3.png')} style={styles.container}>
+    <BackgroundImage source={{ uri: IMAGE_URI }} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.navigate('Home')}>
           <Ionicons name="close-outline" size={30} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
@@ -30,10 +95,10 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.logoutText}>Sign-out</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.profileContent}>
+      <View style={styles.profileCard}>
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: client.user.image }}
+            source={{ uri: avatarUrl || 'https://i.pinimg.com/564x/e6/33/ee/e633eefbeb77cd4323a1557d33c91c83.jpg' }}
             style={styles.profileImage}
           />
           <TouchableOpacity style={styles.editIcon}>
@@ -41,32 +106,32 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Username</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            value={username}
-            onChangeText={setUsername}
+            value={session?.user?.email || ''}
+            editable={false}
           />
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Contact Number</Text>
           <TextInput
             style={styles.input}
-            value={contactNumber}
+            value={contact_number || ''}
             onChangeText={setContactNumber}
             keyboardType="phone-pad"
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>Username</Text>
           <TextInput
             style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
+            value={username || ''}
+            onChangeText={setUsername}
           />
         </View>
-        <TouchableOpacity onPress={handleSave}>
+      </View>
+      <TouchableOpacity onPress={updateProfile}>
           <LinearGradient
             colors={['#8A2BE2', '#4B0082']}
             style={styles.saveButton}
@@ -76,14 +141,14 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.saveButtonText}>Save</Text>
           </LinearGradient>
         </TouchableOpacity>
-      </View>
-    </ImageBackground>
+    </BackgroundImage>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#EEEEEE',
   },
   header: {
     flexDirection: 'row',
@@ -92,8 +157,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 40,
     backgroundColor: '#4B0082',
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
     paddingVertical: 18,
   },
   headerTitle: {
@@ -112,11 +175,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-  profileContent: {
-    flex: 1,
+  profileCard: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    marginTop: 80,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white for glass effect
+    borderRadius: 10,
+    padding: 30,
+    zIndex: 1,
   },
   imageContainer: {
     position: 'relative',
@@ -151,11 +218,12 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 12,
     padding: 10,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
   },
   saveButton: {
     width: 150,
     height: 50,
+    alignSelf: 'center',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',

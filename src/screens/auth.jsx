@@ -1,53 +1,54 @@
-import React, { useState } from 'react'
-import { Alert, StyleSheet, View, AppState } from 'react-native'
-import { supabase } from '../lib/supabase.js'
-import { Button, Input } from '@rneui/themed'
+import React, { useState } from 'react';
+import { Alert, StyleSheet, View, Text } from 'react-native';
+import { Input, Button } from '@rneui/themed';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthProvider';
 
-// Tells Supabase Auth to continuously refresh the session automatically if
-// the app is in the foreground. When this is added, you will continue to receive
-// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
-// if the user's session is terminated. This should only be registered once.
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh()
-  } else {
-    supabase.auth.stopAutoRefresh()
-  }
-})
+export default function Auth({ navigation }) {
+  const { signIn, signUp } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-export default function Auth() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const handleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+    setLoading(false);
+  };
 
-  async function signInWithEmail() {
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
+  const handleSignUp = async () => {
+    setLoading(true);
+    try {
+      await signUp(email, password);
+      Alert.alert('Account registered successfully!');
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+    setLoading(false);
+  };
 
-    if (error) Alert.alert(error.message)
-    setLoading(false)
-  }
-
-  async function signUpWithEmail() {
-    setLoading(true)
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    })
-
-    if (error) Alert.alert(error.message)
-    if (!session) Alert.alert('Please check your inbox for email verification!')
-    setLoading(false)
-  }
+  const handleLogout = () => {
+    navigation.navigate('Login');
+  };
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.goBack()}>
+          <Ionicons name="close-outline" size={30} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Edit Profile</Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="exit-outline" size={24} color="white" />
+          <Text style={styles.logoutText}>Sign-out</Text>
+        </TouchableOpacity>
+      </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Input
           label="Email"
@@ -70,26 +71,50 @@ export default function Auth() {
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button title="Sign in" disabled={loading} onPress={() => signInWithEmail()} />
+        <Button title="Sign in" disabled={loading} onPress={handleSignIn} />
       </View>
       <View style={styles.verticallySpaced}>
-        <Button title="Sign up" disabled={loading} onPress={() => signUpWithEmail()} />
+        <Button title="Sign up" disabled={loading} onPress={handleSignUp} />
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingTop: 40,
+    backgroundColor: '#4B0082',
+    paddingVertical: 18,
+  },
+  headerTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 24,
+    marginLeft: 20,
+  },
+  logoutButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingRight: 10,
+  },
+  logoutText: {
+    color: 'white',
+    fontSize: 12,
+    marginTop: 4,
   },
   verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
+    marginTop: 40,
+    padding: 12,
     alignSelf: 'stretch',
   },
   mt20: {
     marginTop: 20,
   },
-})
+});
