@@ -1,13 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, AppState } from "react-native";
+import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, Alert } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../context/AuthProvider";
 
 const LoginScreen = () => {
 
     const navigation = useNavigation();
-    const { signIn, signUp } = useAuth();
+    const { signIn } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ const LoginScreen = () => {
       setLoading(true);
       try {
         await signIn(email, password);
-        navigation.navigate('Home');
+        navigation.navigate('AvatarSelection');
       } catch (error) {
         Alert.alert(error.message);
       }
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     footerTextLink: {
-        color: 'yellow',
+        color: '#FFFAA0',
         fontSize: 16,
     },
 });

@@ -1,29 +1,30 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity } from "react-native";
+import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, Alert } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../context/AuthProvider";
 
 const SignupScreen = () => {
 
     const navigation = useNavigation();
-    const { signIn, signUp } = useAuth();
+    const { signUp } = useAuth();
     const [email, setEmail] = useState('');
-    const [contact_number, setContact_number] = useState('');
-    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
   
     const handleSignUp = async () => {
-      setLoading(true);
-      try {
-        await signUp(email, contact_number, username, password);
-      } catch (error) {
-        Alert.alert(error.message);
-      }
-      Alert.alert('Account registered successfully!');
-      setLoading(false);
-    };
+        setLoading(true);
+        try {
+          const response = await signUp(email, password);
+          if (response?.status !== 422) {
+            Alert.alert('Account registered successfully!');
+            navigation.navigate('Login');
+          }
+        } catch (error) {
+          Alert.alert(error.message);
+        }
+        setLoading(false);
+      };
 
     const IMAGE_URI = 'https://i.pinimg.com/564x/08/6c/d0/086cd0eaa64a5b2b19b9e771f61b2cb9.jpg';
 
@@ -40,24 +41,6 @@ const SignupScreen = () => {
                     onChangeText={(text) => setEmail(text)}
                     value={email}
                     placeholder="Email"
-                    placeholderTextColor="#aaa"
-                    autoCapitalize={'none'}
-                />
-                <TextInput
-                    style={styles.input}
-                    label="Contact Number"
-                    onChangeText={(text) => setContact_number(text)}
-                    value={contact_number}
-                    placeholder="Contact Number"
-                    placeholderTextColor="#aaa"
-                    autoCapitalize={'none'}
-                />
-                <TextInput
-                    style={styles.input}
-                    label="Username"
-                    onChangeText={(text) => setUsername(text)}
-                    value={username}
-                    placeholder="Username"
                     placeholderTextColor="#aaa"
                     autoCapitalize={'none'}
                 />
@@ -156,7 +139,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     footerTextLink: {
-        color: 'yellow',
+        color: '#FFFAA0',
         fontSize: 16,
     },
 });

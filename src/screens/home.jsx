@@ -1,21 +1,92 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, Platform, TouchableOpacity, Image, Animated, TextInput } from 'react-native';
+import { View, StyleSheet, Text, Platform, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
 import { useStreamChat } from '../context/StreamChatContext';
-import AppLoading from 'expo-app-loading';
+import { useAuth } from '../context/AuthProvider';
+import { supabase } from '../lib/supabase';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
+  const { session } = useAuth();
   const [channel, setChannel] = useState(null);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
   const searchBarWidth = useRef(new Animated.Value(0)).current;
 
   const [fontsLoaded] = useFonts({
     'Bradley-Hand': require('../assets/fonts/bradhitc.ttf'),
   });
+
+  const avatarData = [
+    require('../assets/avatars/sapiens1.png'),
+    require('../assets/avatars/sapiens2.png'),
+    require('../assets/avatars/sapiens3.png'),
+    require('../assets/avatars/sapiens4.png'),
+    require('../assets/avatars/sapiens5.png'),
+    require('../assets/avatars/sapiens6.png'),
+    require('../assets/avatars/sapiens7.png'),
+    require('../assets/avatars/sapiens8.png'),
+    require('../assets/avatars/sapiens9.png'),
+    require('../assets/avatars/sapiens10.png'),
+    require('../assets/avatars/sapiens11.png'),
+    require('../assets/avatars/sapiens12.png'),
+  ];
+  
+  const avatarURLs = [
+    'https://i.postimg.cc/Tw7XxhjH/sapiens1.png',
+    'https://i.postimg.cc/1XbhgTjG/sapiens2.png',
+    'https://i.postimg.cc/C5RpxYmM/sapiens3.png',
+    'https://i.postimg.cc/NMfwZRXH/sapiens4.png',
+    'https://i.postimg.cc/RCYzb6ZW/sapiens5.png',
+    'https://i.postimg.cc/4NhTCfYB/sapiens6.png',
+    'https://i.postimg.cc/jS0YtpNK/sapiens7.png',
+    'https://i.postimg.cc/zGCZBxSh/sapiens8.png',
+    'https://i.postimg.cc/cJdq8fXb/sapiens9.png',
+    'https://i.postimg.cc/s2mkP1LD/sapiens10.png',
+    'https://i.postimg.cc/Y9SJdMcN/sapiens11.png',
+    'https://i.postimg.cc/QtnvPws2/sapiens12.png',
+  ];
+
+  useEffect(() => {
+    if (session) getProfile();
+  }, [session]);
+
+  async function getProfile() {
+    try {
+      setLoading(true);
+      if (!session?.user) {
+        throw new Error('No user on the session!');
+      }
+
+      const { data, error, status } = await supabase
+        .from('profiles')
+        .select(`username, avatar_url, contact_number, website`)
+        .eq('id', session?.user.id)
+        .single();
+        
+      if (error && status !== 406) {
+        throw error;
+      }
+
+      if (data) {
+        // setUsername(data.username);
+        setAvatarUrl(data.avatar_url);
+        // setContact_Number(data.contact_number);
+        // setWebsite(data.website);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert(error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     Animated.timing(searchBarWidth, {
@@ -43,14 +114,23 @@ const HomeScreen = ({ navigation }) => {
   };
 
   if (!fontsLoaded || !isUserConnected) {
-    return <AppLoading />;
+    return null;
   }
+  
+  const avatarIndex = avatarURLs.indexOf(avatarUrl);
+  const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
   return (
     <OverlayProvider>
       <Chat client={client}>
         <View style={styles.container}>
-          <View style={styles.header}>
+          <StatusBar barStyle="light-content" />
+          <LinearGradient
+            colors={['#4B0082', '#000']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.header}
+          >
             <View style={styles.headerLeft}>
               {!isSearchVisible && <Text style={styles.headerTitle}>GIZMO</Text>}
             </View>
@@ -76,37 +156,25 @@ const HomeScreen = ({ navigation }) => {
                   <Ionicons name="search-outline" size={24} color="white" />
                 </TouchableOpacity>
               )}
-              <TouchableOpacity style={styles.profilePictureContainer} onPress={onProfilePressed}>
-                <Image
-                  source={{ uri: client.user.image }}
-                  style={styles.profilePicture}
-                />
+              <TouchableOpacity style={styles.avatarContainer} onPress={onProfilePressed}>
+                {avatarUrl ? (
+                  <Image
+                    source={avatarBackground}
+                    style={styles.avatar}
+                  />
+                ) : (
+                  <Image
+                    source={require('../assets/images/image.png')}
+                    style={styles.avatarAlt}
+                  />
+                )}
               </TouchableOpacity>
             </View>
-          </View>
+          </LinearGradient>
           <ChannelList
             onSelect={onChannelPressed}
             sort={{ last_message_at: -1 }}
             options={{ state: true, watch: true }}
-            itemProps={{
-              container: {
-                justifyContent: 'center',
-                paddingVertical: 15,
-                paddingHorizontal: 10,
-                borderBottomColor: '#ccc',
-                borderBottomWidth: 0,
-              },
-              title: {
-                fontSize: 18,
-              },
-              subtitle: {
-                fontSize: 14,
-                color: '#888',
-              },
-              avatar: {
-                size: 50,
-              },
-            }}
           />
         </View>
       </Chat>
@@ -124,11 +192,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: Platform.OS === 'android' ? 50 : 0,
-    backgroundColor: '#4B0082',
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    paddingVertical: 20,
+    paddingVertical: 10,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -147,9 +211,9 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    marginRight: 10,
+    marginLeft: 10,
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 15,
     flexDirection: 'row',
     alignItems: 'center',
     overflow: 'hidden',
@@ -159,14 +223,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 16,
   },
-  profilePictureContainer: {
-    marginLeft: 10,
-    marginRight: 10,
+  avatarContainer: {
+    marginHorizontal: 10,
   },
-  profilePicture: {
+  avatar: {
     width: 30,
-    height: 30,
-    borderRadius: 15,
+    height: 60,
+  },
+  avatarAlt: {
+    width: 30,
+    height: 60,
   },
 });
 

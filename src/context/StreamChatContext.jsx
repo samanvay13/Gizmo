@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { StreamChat } from 'stream-chat';
+import { AuthProvider, useAuth } from './AuthProvider';
 
 const StreamChatContext = createContext();
 
@@ -7,42 +8,47 @@ const client = StreamChat.getInstance(process.env.EXPO_PUBLIC_STREAM_API_KEY);
 
 export const StreamChatProvider = ({ children }) => {
   const [isUserConnected, setIsUserConnected] = useState(false);
+  const { profile } = useAuth();
 
   useEffect(() => {
     const connect = async () => {
       try {
         await client.connectUser(
           {
-            id: 'omantix',
-            name: 'omantix',
-            image: 'https://i.pinimg.com/564x/36/a2/e2/36a2e242bfe3ac039e0618fbaaef7596.jpg',
+            id: profile.id,
+            name: profile.username,
+            image: profile.avatar_url,
           },
-          client.devToken('omantix')
+          client.devToken(profile.id),
         );
         setIsUserConnected(true);
         console.log('User connected:', client.userID);
 
-        // Fetch and log channels
-        const filters = { type: 'messaging', members: { $in: ['omantix'] } };
+        const filters = { type: 'messaging' };
         const sort = [{ last_message_at: -1 }];
         const channels = await client.queryChannels(filters, sort, { watch: true });
-        console.log('Channels:', channels);
+        // console.log('Channels:', channels);
       } catch (error) {
-        console.error('Error connecting user:', error);
+        // console.error('Error connecting user:', error);
       }
     };
 
     connect();
 
     return () => {
-      client.disconnectUser();
+      if(isUserConnected) {
+        client.disconnectUser();
+      }
+      setIsUserConnected(false);
     };
-  }, []);
+  }, [profile?.id]);
 
   return (
-    <StreamChatContext.Provider value={{ client, isUserConnected }}>
-      {children}
-    </StreamChatContext.Provider>
+    <AuthProvider>
+      <StreamChatContext.Provider value={{ client, isUserConnected }}>
+        {children}
+      </StreamChatContext.Provider>
+    </AuthProvider>
   );
 };
 

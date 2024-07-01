@@ -5,6 +5,7 @@ import { useStreamChat } from '../context/StreamChatContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export const theme = {
   messageList: {
@@ -17,10 +18,15 @@ export const theme = {
 const IMAGE_URI = 'https://images.unsplash.com/photo-1549125764-91425ca48850?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8NjF8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60';
 
 const LoadingChannelScreen = () => (
-  <View style={styles.loadingContainer}>
-    <Ionicons name="chatbubbles-outline" size={100} color="#4B0082" />
-    <Text style={styles.loadingContainerText}>GIZMO</Text>
-  </View>
+  <LinearGradient 
+    colors={['#4B0082', '#000']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.loadingContainer}
+  >
+    <Ionicons name="chatbubbles-outline" size={100} color="white" />
+    <Text style={styles.loadingContainerText}>Express yourself, with GIZMO</Text>
+  </LinearGradient>
 );
 
 const ChannelScreen = ({ route, navigation }) => {
@@ -51,34 +57,41 @@ const ChannelScreen = ({ route, navigation }) => {
   if (!channel) {
     return <LoadingChannelScreen />;
   }
-
-  return (
-    <OverlayProvider>
-      <Chat client={client} theme={theme}>
-        <Channel channel={channel}>
-          <ImageBackground
-            style={{ flex: 1 }}
-            source={{ uri: IMAGE_URI }}
-          >
-            <View style={styles.header}>
-              <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.goBack()}>
-                <Ionicons name="chevron-back-outline" size={24} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>{channel.data.name}</Text>
-              {channel.data.image && (
-                <Image
-                  source={{ uri: channel.data.image }}
-                  style={styles.headerImage}
-                />
-              )}
-            </View>
-            <MessageList />
-            <MessageInput />
-          </ImageBackground>
-        </Channel>
-      </Chat>
-    </OverlayProvider>
-  );
+  
+  if (channel) {
+    return (
+      <OverlayProvider>
+        <Chat client={client} theme={theme}>
+          <Channel channel={channel}>
+            <ImageBackground
+              style={{ flex: 1 }}
+              source={{ uri: IMAGE_URI }}
+            >
+              <LinearGradient 
+                colors={['#4B0082', '#000']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.header}
+              >
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                  <Ionicons name="chevron-back-outline" size={25} color="white" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>{channel.data.name}</Text>
+                {channel.data.image && (
+                  <Image
+                    source={{ uri: channel.data.image }}
+                    style={styles.headerImage}
+                  />
+                )}
+              </LinearGradient>
+              <MessageList />
+              <MessageInput />
+            </ImageBackground>
+          </Channel>
+        </Chat>
+      </OverlayProvider>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -91,31 +104,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingContainerText: {
-    color: '#4B0082',
-    fontSize: 20,
+    color: '#fff',
+    fontSize: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: 40,
+    paddingTop: 20,
     backgroundColor: '#4B0082',
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
-    paddingVertical: 15,
+    paddingBottom: 15,
   },
   headerTitle: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 22,
     marginLeft: 20,
   },
   headerImage: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginLeft: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
   },
 });
 

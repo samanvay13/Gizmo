@@ -5,15 +5,45 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthProvider';
 import { supabase } from '../lib/supabase';
-import { BackgroundImage } from '@rneui/themed/dist/config';
 
 const ProfileScreen = () => {
   const { session, signOut } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState('');
-  const [contact_number, setContactNumber] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [username, setUsername] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [contact_number, setContact_Number] = useState(null);
+  const [website, setWebsite] = useState(null);
   const navigation = useNavigation();
+
+  const avatarData = [
+    require('../assets/avatarsBackgrounds/sapiensBG1.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG2.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG3.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG4.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG5.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG6.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG7.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG8.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG9.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG10.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG11.png'),
+    require('../assets/avatarsBackgrounds/sapiensBG12.png'),
+  ];
+  
+  const avatarURLs = [
+    'https://i.postimg.cc/Tw7XxhjH/sapiens1.png',
+    'https://i.postimg.cc/1XbhgTjG/sapiens2.png',
+    'https://i.postimg.cc/C5RpxYmM/sapiens3.png',
+    'https://i.postimg.cc/NMfwZRXH/sapiens4.png',
+    'https://i.postimg.cc/RCYzb6ZW/sapiens5.png',
+    'https://i.postimg.cc/4NhTCfYB/sapiens6.png',
+    'https://i.postimg.cc/jS0YtpNK/sapiens7.png',
+    'https://i.postimg.cc/zGCZBxSh/sapiens8.png',
+    'https://i.postimg.cc/cJdq8fXb/sapiens9.png',
+    'https://i.postimg.cc/s2mkP1LD/sapiens10.png',
+    'https://i.postimg.cc/Y9SJdMcN/sapiens11.png',
+    'https://i.postimg.cc/QtnvPws2/sapiens12.png',
+  ];
 
   useEffect(() => {
     if (session) getProfile();
@@ -26,7 +56,7 @@ const ProfileScreen = () => {
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`username, contact_number, avatar_url`)
+        .select(`username, avatar_url, contact_number, website`)
         .eq('id', session?.user.id)
         .single();
         
@@ -36,8 +66,9 @@ const ProfileScreen = () => {
 
       if (data) {
         setUsername(data.username);
-        setContactNumber(data.contact_number);
         setAvatarUrl(data.avatar_url);
+        setContact_Number(data.contact_number);
+        setWebsite(data.website);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -55,9 +86,8 @@ const ProfileScreen = () => {
 
       const updates = {
         id: session?.user.id,
-        username,
         contact_number,
-        avatar_url: avatarUrl,
+        website: website,
         updated_at: new Date(),
       };
 
@@ -81,30 +111,42 @@ const ProfileScreen = () => {
     navigation.navigate('Login');
   };
 
-  const IMAGE_URI = 'https://i.pinimg.com/564x/cc/34/a3/cc34a35e193df5f9a722083c53e86b76.jpg';
+  const avatarIndex = avatarURLs.indexOf(avatarUrl);
+  const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
   return (
-    <BackgroundImage source={{ uri: IMAGE_URI }} style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={{ paddingLeft: 10 }} onPress={() => navigation.navigate('Home')}>
-          <Ionicons name="close-outline" size={30} color="white" />
+    <View style={styles.container}>
+      <LinearGradient 
+        colors={['#4B0082', '#000']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <Ionicons name="arrow-back-outline" size={25} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="exit-outline" size={24} color="white" />
-          <Text style={styles.logoutText}>Sign-out</Text>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={styles.headerTitle}>@ {username}</Text>
+        </View>
+        <TouchableOpacity onPress={handleLogout}>
+          <Ionicons name="exit-outline" size={25} color="white" />
+        </TouchableOpacity>
+      </LinearGradient>
+      <View style={styles.imageContainer}>
+        <Image
+          source={avatarBackground}
+          style={styles.profileImage}
+        />
+        <TouchableOpacity style={styles.editIcon} onPress={() => navigation.navigate('AvatarSelection')}>
+          <Ionicons name="build-outline" size={20} color="white" />
         </TouchableOpacity>
       </View>
-      <View style={styles.profileCard}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: avatarUrl || 'https://i.pinimg.com/564x/e6/33/ee/e633eefbeb77cd4323a1557d33c91c83.jpg' }}
-            style={styles.profileImage}
-          />
-          <TouchableOpacity style={styles.editIcon}>
-            <Ionicons name="camera-outline" size={20} color="white" />
-          </TouchableOpacity>
-        </View>
+      <LinearGradient
+        colors={['#4B0082', '#000']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.profileCard}
+      >
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
           <TextInput
@@ -118,22 +160,25 @@ const ProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={contact_number || ''}
-            onChangeText={setContactNumber}
+            onChangeText={setContact_Number}
             keyboardType="phone-pad"
+            placeholder='+91 XXXXXXXXXX'
+            placeholderTextColor={'#ccc'}
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Username</Text>
+          <Text style={styles.label}>Website</Text>
           <TextInput
             style={styles.input}
-            value={username || ''}
-            onChangeText={setUsername}
+            value={website || ''}
+            onChangeText={setWebsite}
+            placeholder='https://example.com'
+            placeholderTextColor={'#ccc'}
           />
         </View>
-      </View>
-      <TouchableOpacity onPress={updateProfile}>
+        <TouchableOpacity onPress={updateProfile}>
           <LinearGradient
-            colors={['#8A2BE2', '#4B0082']}
+            colors={['#00ff7f', '#006400']}
             style={styles.saveButton}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -141,66 +186,67 @@ const ProfileScreen = () => {
             <Text style={styles.saveButtonText}>Save</Text>
           </LinearGradient>
         </TouchableOpacity>
-    </BackgroundImage>
+      </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#FFF',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: 40,
+    paddingTop: 25,
     backgroundColor: '#4B0082',
-    paddingVertical: 18,
+    paddingBottom: 20,
   },
   headerTitle: {
-    color: 'white',
+    color: '#fff',
     fontWeight: 'bold',
-    fontSize: 24,
-    marginLeft: 20,
-  },
-  logoutButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingRight: 10,
-  },
-  logoutText: {
-    color: 'white',
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 22,
   },
   profileCard: {
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 20,
-    marginTop: 80,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Transparent white for glass effect
-    borderRadius: 10,
-    padding: 30,
+    backgroundColor: '#4B0082',
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    top: -25,
     zIndex: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,  
+    elevation: 10
   },
   imageContainer: {
-    position: 'relative',
-    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',  
+    marginHorizontal: 50,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 350,
+    height: 350,
   },
   editIcon: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
+    top: 20,
+    right: 40,
     backgroundColor: '#4B0082',
     borderRadius: 15,
     padding: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,  
+    elevation: 10
   },
   inputContainer: {
     width: '100%',
@@ -209,16 +255,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#4B0082',
+    color: '#FFFAA0',
     margin: 10,
   },
   input: {
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backgroundColor: '#fff',
   },
   saveButton: {
     width: 150,
@@ -227,7 +273,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    margin: 10,
   },
   saveButtonText: {
     color: '#fff',
