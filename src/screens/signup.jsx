@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     loginCard: {
+        position: 'fixed',
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 20,

@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 20,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)', // Transparent white for glass effect
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
         borderRadius: 10,
         padding: 30,
         zIndex: 1,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     input: {
         width: '100%',
         height: 50,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent white
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: 5,
         paddingHorizontal: 15,
         marginBottom: 20,

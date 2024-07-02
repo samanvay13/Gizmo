@@ -49,10 +49,10 @@ const UsersScreen = () => {
   };
 
   const renderUserItem = ({ item }) => (
-    <View style={styles.userItem}>
+    <TouchableOpacity style={styles.userItem}>
       <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
       <Text style={styles.username}>{item.username}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -88,7 +88,7 @@ const UsersScreen = () => {
           <View style={styles.search}>
             <Image source={require('../assets/avatars/search.png')} style={styles.searchImage}></Image>
             <TouchableOpacity style={{ paddingBottom: 10 }} onPress={() => fetchUsers(searchQuery)}>
-              <Ionicons name="search-outline" size={24} color="#4B0082" />
+              <Ionicons name="telescope-outline" size={30} color="#4B0082" />
             </TouchableOpacity>
             <Text style={styles.placeholderText}>
               Search the Pseudonym you're looking for.
@@ -106,7 +106,7 @@ const UsersScreen = () => {
                   Sorry, couldn't find the one you're looking for.
                 </Text>
                 <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => fetchUsers(searchQuery)}>
-                  <Ionicons name="sad-outline" size={24} color="#4B0082" />
+                  <Ionicons name="sad-outline" size={30} color="#4B0082" />
                 </TouchableOpacity>
               </View>
             }
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 10,
+    paddingHorizontal: 10,
   },
   placeholderText: {
     fontSize: 16,
@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 18,
+    fontWeight: 'bold',
     color: '#4B0082',
   },
   search: {
