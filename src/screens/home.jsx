@@ -113,6 +113,10 @@ const HomeScreen = ({ navigation }) => {
     setSearchVisible(false);
   };
 
+  const onAddUsersPressed = () => {
+    navigation.navigate('Users');
+  }
+
   if (!fontsLoaded || !isUserConnected) {
     return null;
   }
@@ -176,6 +180,14 @@ const HomeScreen = ({ navigation }) => {
             sort={{ last_message_at: -1 }}
             options={{ state: true, watch: true }}
           />
+          <TouchableOpacity style={styles.addButton} onPress={onAddUsersPressed}>
+            <LinearGradient
+              colors={['#8A2BE2', '#4B0082']}
+              style={styles.addButtonGradient}
+            >
+              <Ionicons name="add" size={36} color="white" />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </Chat>
     </OverlayProvider>
@@ -233,6 +245,29 @@ const styles = StyleSheet.create({
   avatarAlt: {
     width: 30,
     height: 60,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,  
+    elevation: 10,
+  },
+  addButtonGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 60,
+    borderRadius: 30,
   },
 });
 

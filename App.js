@@ -10,6 +10,7 @@ import SignupScreen from './src/screens/signup';
 import ProfileScreen from './src/screens/profile';
 import { AuthProvider } from './src/context/AuthProvider';
 import AvatarSelectionScreen from './src/screens/avatarSelection';
+import UsersScreen from './src/screens/users';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ function App() {
               <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="Users" component={UsersScreen} options={{ headerShown: false }} />              
               <Stack.Screen name="Channel" component={ChannelScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
               <Stack.Screen name="AvatarSelection" component={AvatarSelectionScreen} options={{ headerShown: false }} />
