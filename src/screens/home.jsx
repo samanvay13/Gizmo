@@ -10,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
-  const { session } = useAuth();
+  const { session, isUserLoggedIn } = useAuth();
   const [channel, setChannel] = useState(null);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,8 +53,15 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (session) getProfile();
-  }, [session]);
+    console.log(isUserLoggedIn);
+    if (isUserLoggedIn) {
+      navigation.navigate('Home');
+      getProfile();
+    }
+    else {
+      navigation.navigate('Login');
+    }
+  }, [session, isUserLoggedIn]);
 
   async function getProfile() {
     try {
@@ -74,10 +81,7 @@ const HomeScreen = ({ navigation }) => {
       }
 
       if (data) {
-        // setUsername(data.username);
         setAvatarUrl(data.avatar_url);
-        // setContact_Number(data.contact_number);
-        // setWebsite(data.website);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -117,7 +121,7 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Users');
   }
 
-  if (!fontsLoaded || !isUserConnected) {
+  if (!fontsLoaded || !isUserConnected || loading) {
     return null;
   }
   
@@ -247,7 +251,8 @@ const styles = StyleSheet.create({
   },
   avatarAlt: {
     width: 35,
-    height: 70,
+    height: 35,
+    marginVertical: 17.5,
   },
   addButton: {
     position: 'absolute',

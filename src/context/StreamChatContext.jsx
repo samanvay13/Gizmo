@@ -24,12 +24,10 @@ export const StreamChatProvider = ({ children }) => {
           },
           client.devToken(session.user.id),
         );
-
-        console.log(session.user.id);
         
         setIsUserConnected(true);
-        console.log('User connected:', client.userID);
-        console.log(session.user.id);
+        // console.log('User connected:', client.userID);
+        // console.log(session.user.id);
 
         const filters = { type: 'messaging', members: { $in: [session.user.id] } };
         const sort = [{ last_message_at: -1 }];

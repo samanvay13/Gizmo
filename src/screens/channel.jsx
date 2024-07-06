@@ -4,7 +4,6 @@ import { Chat, Channel, MessageList, MessageInput, OverlayProvider } from 'strea
 import { useStreamChat } from '../context/StreamChatContext';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export const theme = {

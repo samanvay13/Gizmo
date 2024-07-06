@@ -16,7 +16,7 @@ const LoginScreen = () => {
       setLoading(true);
       try {
         await signIn(email, password);
-        navigation.navigate('Home');
+        navigation.navigate('AvatarSelection');
       } catch (error) {
         Alert.alert(error.message);
       }

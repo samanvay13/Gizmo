@@ -38,7 +38,7 @@ const SignupScreen = () => {
                 <TextInput
                     style={styles.input}
                     label="Email"
-                    onChangeText={(text) => setEmail(text)}
+                    onChangeText={(text) => setEmail(text.trim())}
                     value={email}
                     placeholder="Email"
                     placeholderTextColor="#aaa"

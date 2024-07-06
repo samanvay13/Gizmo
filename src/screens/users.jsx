@@ -52,8 +52,6 @@ const UsersScreen = () => {
 
   const onUserPress = async (item) => {
     try {
-      // console.log(item.id);
-      // console.log(session.user.id);
       const channel = client.channel('messaging', {
         members: [session.user.id, item.id],
       });

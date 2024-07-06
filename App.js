@@ -21,9 +21,9 @@ function App() {
         <StreamChatProvider>
           <NavigationContainer>
             <Stack.Navigator>
+              <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Users" component={UsersScreen} options={{ headerShown: false }} />              
               <Stack.Screen name="Channel" component={ChannelScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />

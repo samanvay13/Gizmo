@@ -168,8 +168,8 @@ const AvatarSelectionScreen = () => {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back-outline" size={25} color="white" />
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Home')}>
+        <Ionicons name="close-outline" size={25} color="white" />
       </TouchableOpacity>
       <View style={styles.avatarHeader}>
         <Text style={styles.avatarHeaderText}>Pseudonym</Text>
@@ -181,7 +181,7 @@ const AvatarSelectionScreen = () => {
           style={styles.input}
           placeholder="Enter your pseudonym"
           placeholderTextColor="#aaa"
-          value={pseudonym.trim()}
+          value={pseudonym}
           onChangeText={setPseudonym}
           autoCapitalize="none"
         />
