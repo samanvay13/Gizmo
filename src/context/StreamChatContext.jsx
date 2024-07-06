@@ -14,8 +14,13 @@ export const StreamChatProvider = ({ children }) => {
     if (!session?.user) {
       return;
     }
-    const connect = async () => {
+
+    const connectUser = async () => {
       try {
+        if (client.userID) {
+          await client.disconnectUser();
+        }
+
         await client.connectUser(
           {
             id: session.user.id,
@@ -24,24 +29,21 @@ export const StreamChatProvider = ({ children }) => {
           },
           client.devToken(session.user.id),
         );
-        
+
         setIsUserConnected(true);
-        // console.log('User connected:', client.userID);
-        // console.log(session.user.id);
 
         const filters = { type: 'messaging', members: { $in: [session.user.id] } };
         const sort = [{ last_message_at: -1 }];
-        const channels = await client.queryChannels(filters, sort, { watch: true });
-        // console.log('Channels:', channels);
+        await client.queryChannels(filters, sort, { watch: true });
       } catch (error) {
         console.error('Error connecting user:', error);
       }
     };
 
-    connect();
+    connectUser();
 
     return () => {
-      if(isUserConnected) {
+      if (isUserConnected) {
         client.disconnectUser();
       }
       setIsUserConnected(false);

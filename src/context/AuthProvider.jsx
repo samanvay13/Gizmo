@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
     const getSession = async () => {
@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
       setSession(session);
       setUser(session?.user || null);
       setIsUserLoggedIn(!!session?.user);
+      setLoadingAuth(false);
     };
 
     getSession();
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }) => {
       setSession(session);
       setUser(session?.user || null);
       setIsUserLoggedIn(!!session?.user);
+      setLoadingAuth(false);
     });
 
     return () => {
@@ -32,15 +34,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signIn = async (email, password) => {
+    setLoadingAuth(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     setIsUserLoggedIn(true);
+    setLoadingAuth(false);
   };
 
   const signUp = async (email, password) => {
+    setLoadingAuth(true);
     const { data: { session }, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     setIsUserLoggedIn(!!session);
+    setLoadingAuth(false);
     if (!session) alert('Please check your inbox for email verification!');
   };
 
@@ -53,12 +59,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (session) getProfile();
-  }, [session?.user]);
+    if (session?.user) getProfile();
+  }, [session]);
 
   async function getProfile() {
     try {
-      setLoading(true);
+      setLoadingAuth(true);
       if (!session?.user) throw new Error('No user on the session!');
 
       const { data, error, status } = await supabase
@@ -79,12 +85,12 @@ export const AuthProvider = ({ children }) => {
         Alert.alert(error.message);
       }
     } finally {
-      setLoading(false);
+      setLoadingAuth(false);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, signIn, signUp, signOut, isUserLoggedIn }}>
+    <AuthContext.Provider value={{ session, user, profile, signIn, signUp, signOut, isUserLoggedIn, loadingAuth }}>
       {children}
     </AuthContext.Provider>
   );

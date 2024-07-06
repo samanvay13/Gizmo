@@ -123,11 +123,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: 10,
     backgroundColor: '#4B0082',
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
-    paddingBottom: 10,
   },
   headerContent: {
     flex: 1,

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, Platform, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
@@ -10,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
-  const { session, isUserLoggedIn } = useAuth();
+  const { session, isUserLoggedIn, loadingAuth } = useAuth();
   const [channel, setChannel] = useState(null);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,15 +53,14 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    console.log(isUserLoggedIn);
-    if (isUserLoggedIn) {
-      navigation.navigate('Home');
-      getProfile();
+    if (!loadingAuth) {
+      if (session?.user) {
+        getProfile();
+      } else if (!isUserLoggedIn) {
+        navigation.navigate('Login');
+      }
     }
-    else {
-      navigation.navigate('Login');
-    }
-  }, [session, isUserLoggedIn]);
+  }, [session, isUserLoggedIn, loadingAuth]);
 
   async function getProfile() {
     try {
@@ -121,14 +120,14 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Users');
   }
 
-  if (!fontsLoaded || !isUserConnected || loading) {
+  if (!fontsLoaded || !isUserConnected || loading || loadingAuth) {
     return null;
   }
   
   const avatarIndex = avatarURLs.indexOf(avatarUrl);
   const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
-  const filters = { members: { $in: [session.user.id] } };
+  const filters = { members: { $in: [session?.user?.id] } };
 
   return (
     <OverlayProvider>
@@ -142,7 +141,7 @@ const HomeScreen = ({ navigation }) => {
             style={styles.header}
           >
             <View style={styles.headerLeft}>
-              {!isSearchVisible && <Text style={styles.headerTitle}>GIZMO</Text>}
+              <Text style={styles.headerTitle}>GIZMO</Text>
             </View>
             <View style={styles.headerRight}>
               {isSearchVisible && (
@@ -219,7 +218,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 30,
+    fontSize: 27,
     fontFamily: 'Bradley-Hand',
     marginLeft: 20,
     paddingVertical: 10,
