@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
+import { View, StyleSheet, Text, Platform, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
-import { useStreamChat } from '../context/StreamChatContext';
+import { useStreamChat } from '../context/StreamChatContext.jsx';
 import { useAuth } from '../context/AuthProvider';
 import { supabase } from '../lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
-  const { session, isUserLoggedIn, loadingAuth } = useAuth();
+  const { session } = useAuth();
   const [channel, setChannel] = useState(null);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,14 +53,8 @@ const HomeScreen = ({ navigation }) => {
   ];
 
   useEffect(() => {
-    if (!loadingAuth) {
-      if (session?.user) {
-        getProfile();
-      } else if (!isUserLoggedIn) {
-        navigation.navigate('Login');
-      }
-    }
-  }, [session, isUserLoggedIn, loadingAuth]);
+    if (session) getProfile();
+  }, [session]);
 
   async function getProfile() {
     try {
@@ -116,18 +110,14 @@ const HomeScreen = ({ navigation }) => {
     setSearchVisible(false);
   };
 
-  const onAddUsersPressed = () => {
-    navigation.navigate('Users');
-  }
-
-  if (!fontsLoaded || !isUserConnected || loading || loadingAuth) {
+  if (!fontsLoaded || !isUserConnected) {
     return null;
   }
   
   const avatarIndex = avatarURLs.indexOf(avatarUrl);
   const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
-  const filters = { members: { $in: [session?.user?.id] } };
+  const filters = { members: { $in: [session.user.id] } };
 
   return (
     <OverlayProvider>
@@ -141,7 +131,7 @@ const HomeScreen = ({ navigation }) => {
             style={styles.header}
           >
             <View style={styles.headerLeft}>
-              <Text style={styles.headerTitle}>GIZMO</Text>
+              {!isSearchVisible && <Text style={styles.headerTitle}>GIZMO</Text>}
             </View>
             <View style={styles.headerRight}>
               {isSearchVisible && (
@@ -180,20 +170,12 @@ const HomeScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
           </LinearGradient>
-          <ChannelList
-            onSelect={onChannelPressed}
-            filters={filters}
-            sort={{ last_message_at: -1 }}
-            options={{ state: true, watch: true }}
-          />
-          <TouchableOpacity style={styles.addButton} onPress={onAddUsersPressed}>
-            <LinearGradient
-              colors={['#8A2BE2', '#4B0082']}
-              style={styles.addButtonGradient}
-            >
-              <Ionicons name="add" size={36} color="white" />
-            </LinearGradient>
-          </TouchableOpacity>
+          <View style={styles.channelList}>
+            <ChannelList
+              filters={filters}
+              onSelect={onChannelPressed}
+            />
+          </View>
         </View>
       </Chat>
     </OverlayProvider>
@@ -203,46 +185,41 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerTitle: {
-    color: 'white',
+    fontSize: 30,
     fontWeight: 'bold',
-    fontSize: 27,
-    fontFamily: 'Bradley-Hand',
-    marginLeft: 20,
-    paddingVertical: 10,
+    color: 'white',
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   searchBar: {
-    height: 40,
-    marginLeft: 10,
-    backgroundColor: 'white',
-    borderRadius: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#4B0082',
+    borderRadius: 15,
+    backgroundColor: 'white',
   },
   searchInput: {
     flex: 1,
     paddingHorizontal: 10,
-    fontSize: 16,
-  },
-  avatarContainer: {
-    marginHorizontal: 10,
+    height: 40,
+    color: '#4B0082',
   },
   avatar: {
     width: 35,
@@ -253,28 +230,9 @@ const styles = StyleSheet.create({
     height: 35,
     marginVertical: 17.5,
   },
-  addButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,  
-    elevation: 10,
-  },
-  addButtonGradient: {
+  channelList: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 60,
-    borderRadius: 30,
+    backgroundColor: 'white',
   },
 });
 
