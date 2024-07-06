@@ -16,7 +16,7 @@ const LoginScreen = () => {
       setLoading(true);
       try {
         await signIn(email, password);
-        navigation.navigate('AvatarSelection');
+        navigation.navigate('Home');
       } catch (error) {
         Alert.alert(error.message);
       }
@@ -35,7 +35,7 @@ const LoginScreen = () => {
                 <TextInput
                     style={styles.input}
                     label="Email"
-                    onChangeText={(text) => setEmail(text)}
+                    onChangeText={(text) => setEmail(text.trim())}
                     value={email}
                     placeholder="Email"
                     placeholderTextColor="#aaa"

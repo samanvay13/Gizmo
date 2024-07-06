@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
       if (data) {
         setProfile(data);
-        console.log(profile);
+        // console.log(profile);
       }
     } catch (error) {
       if (error instanceof Error) {

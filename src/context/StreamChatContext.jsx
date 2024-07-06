@@ -8,28 +8,35 @@ const client = StreamChat.getInstance(process.env.EXPO_PUBLIC_STREAM_API_KEY);
 
 export const StreamChatProvider = ({ children }) => {
   const [isUserConnected, setIsUserConnected] = useState(false);
-  const { profile } = useAuth();
+  const { session } = useAuth();
 
   useEffect(() => {
+    if (!session?.user) {
+      return;
+    }
     const connect = async () => {
       try {
         await client.connectUser(
           {
-            id: profile.id,
-            name: profile.username,
-            image: profile.avatar_url,
+            id: session.user.id,
+            name: session.user.username,
+            image: session.user.avatar_url,
           },
-          client.devToken(profile.id),
+          client.devToken(session.user.id),
         );
+
+        console.log(session.user.id);
+        
         setIsUserConnected(true);
         console.log('User connected:', client.userID);
+        console.log(session.user.id);
 
-        const filters = { type: 'messaging' };
+        const filters = { type: 'messaging', members: { $in: [session.user.id] } };
         const sort = [{ last_message_at: -1 }];
         const channels = await client.queryChannels(filters, sort, { watch: true });
         // console.log('Channels:', channels);
       } catch (error) {
-        // console.error('Error connecting user:', error);
+        console.error('Error connecting user:', error);
       }
     };
 
@@ -41,14 +48,12 @@ export const StreamChatProvider = ({ children }) => {
       }
       setIsUserConnected(false);
     };
-  }, [profile?.id]);
+  }, [session]);
 
   return (
-    <AuthProvider>
-      <StreamChatContext.Provider value={{ client, isUserConnected }}>
-        {children}
-      </StreamChatContext.Provider>
-    </AuthProvider>
+    <StreamChatContext.Provider value={{ client, isUserConnected }}>
+      {children}
+    </StreamChatContext.Provider>
   );
 };
 

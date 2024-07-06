@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthProvider';
+import { useStreamChat } from '../context/StreamChatContext';
 
 const UsersScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,10 +13,11 @@ const UsersScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const { session } = useAuth();
+  const { client } = useStreamChat();
 
   useEffect(() => {
     fetchUsers('');
-  }, [session]);
+  }, []);
 
   const fetchUsers = async (query) => {
     if (!query.trim()) {
@@ -27,7 +29,7 @@ const UsersScreen = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, avatar_url')
+        .select('*')
         .ilike('username', `%${query}%`)
         .neq('id', session.user.id);
 
@@ -48,8 +50,22 @@ const UsersScreen = () => {
     fetchUsers(query);
   };
 
+  const onUserPress = async (item) => {
+    try {
+      // console.log(item.id);
+      // console.log(session.user.id);
+      const channel = client.channel('messaging', {
+        members: [session.user.id, item.id],
+      });
+      await channel.watch();
+      navigation.navigate('Channel', { channelId: channel.id });
+    } catch (error) {
+      console.error('Error creating or watching channel:', error);
+    }
+  };
+  
   const renderUserItem = ({ item }) => (
-    <TouchableOpacity style={styles.userItem}>
+    <TouchableOpacity style={styles.userItem} onPress={() => onUserPress(item)}>
       <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
       <Text style={styles.username}>{item.username}</Text>
     </TouchableOpacity>
@@ -91,7 +107,7 @@ const UsersScreen = () => {
               <Ionicons name="telescope-outline" size={30} color="#4B0082" />
             </TouchableOpacity>
             <Text style={styles.placeholderText}>
-              Search the Pseudonym you're looking for.
+              Search the Pseudonym and start chatting!
             </Text>
           </View>
         ) : (
@@ -101,13 +117,13 @@ const UsersScreen = () => {
             renderItem={renderUserItem}
             ListEmptyComponent={
               <View style={styles.notFound}>
-                <Image source={require('../assets/avatars/notFound.png')} style={styles.notFoundImage}></Image>
+                <Image source={require('../assets/avatars/notFound2.png')} style={styles.notFoundImage}></Image>
+                <TouchableOpacity style={{ paddingRight: 10, marginBottom: 10 }} onPress={() => fetchUsers(searchQuery)}>
+                  <Ionicons name="sad-outline" size={30} color="#4B0082" />
+                </TouchableOpacity>
                 <Text style={styles.placeholderText}>
                   Sorry, couldn't find the one you're looking for.
                 </Text>
-                <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => fetchUsers(searchQuery)}>
-                  <Ionicons name="sad-outline" size={30} color="#4B0082" />
-                </TouchableOpacity>
               </View>
             }
           />
@@ -155,7 +171,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    color: '#000',
+    color: '#505050',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -184,7 +200,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchImage: {
-    marginTop: 100,
+    marginTop: 120,
     height: 350,
     width: 350,
   },
@@ -196,8 +212,9 @@ const styles = StyleSheet.create({
   },
   notFoundImage: {
     marginTop: 100,
-    height: 350,
-    width: 350,
+    marginBottom: 50,
+    height: 370,
+    width: 370,
   },
 });
 

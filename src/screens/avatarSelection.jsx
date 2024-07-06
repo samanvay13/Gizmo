@@ -181,7 +181,7 @@ const AvatarSelectionScreen = () => {
           style={styles.input}
           placeholder="Enter your pseudonym"
           placeholderTextColor="#aaa"
-          value={pseudonym}
+          value={pseudonym.trim()}
           onChangeText={setPseudonym}
           autoCapitalize="none"
         />

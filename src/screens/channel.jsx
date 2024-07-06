@@ -33,6 +33,7 @@ const ChannelScreen = ({ route, navigation }) => {
   const { client } = useStreamChat();
   const { channelId } = route.params;
   const [channel, setChannel] = useState(null);
+  const [contactedUser, setContactedUser] = useState(null);
 
   useEffect(() => {
     const setupChannel = async () => {
@@ -40,6 +41,11 @@ const ChannelScreen = ({ route, navigation }) => {
         const channel = client.channel('messaging', channelId);
         await channel.watch();
         setChannel(channel);
+
+        const memberIds = Object.keys(channel.state.members);
+        const contactedUserId = memberIds.find(id => id !== client.userID);
+        const contactedUser = channel.state.members[contactedUserId]?.user;
+        setContactedUser(contactedUser);
       } catch (error) {
         console.error('Error setting up channel:', error);
       }
@@ -57,7 +63,7 @@ const ChannelScreen = ({ route, navigation }) => {
   if (!channel) {
     return <LoadingChannelScreen />;
   }
-  
+
   if (channel) {
     return (
       <OverlayProvider>
@@ -72,16 +78,22 @@ const ChannelScreen = ({ route, navigation }) => {
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.header}
-              >
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                  <Ionicons name="chevron-back-outline" size={25} color="white" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>{channel.data.name}</Text>
-                {channel.data.image && (
-                  <Image
-                    source={{ uri: channel.data.image }}
-                    style={styles.headerImage}
-                  />
+              >       
+                {contactedUser && (
+                  <View style={styles.headerContent}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                      <Ionicons name="chevron-back-outline" size={25} color="white" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>{contactedUser.name || contactedUser.id}</Text>
+                    <View style={styles.contactInfo}>
+                      {contactedUser.image && (
+                        <Image
+                          source={{ uri: contactedUser.image }}
+                          style={styles.headerImage}
+                        />
+                      )}
+                    </View>
+                  </View>
                 )}
               </LinearGradient>
               <MessageList />
@@ -112,22 +124,36 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: 20,
+    paddingTop: 10,
     backgroundColor: '#4B0082',
     borderBottomColor: '#ccc',
     borderBottomWidth: 1,
-    paddingBottom: 15,
+    paddingBottom: 10,
+  },
+  headerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerTitle: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 22,
+    fontSize: 24,
     marginLeft: 20,
   },
+  contactInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  contactName: {
+    color: 'white',
+    fontSize: 18,
+    marginLeft: 10,
+  },
   headerImage: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 35,
+    height: 70,
   },
 });
 

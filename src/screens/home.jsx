@@ -124,6 +124,8 @@ const HomeScreen = ({ navigation }) => {
   const avatarIndex = avatarURLs.indexOf(avatarUrl);
   const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
+  const filters = { members: { $in: [session.user.id] } };
+
   return (
     <OverlayProvider>
       <Chat client={client}>
@@ -177,6 +179,7 @@ const HomeScreen = ({ navigation }) => {
           </LinearGradient>
           <ChannelList
             onSelect={onChannelPressed}
+            filters={filters}
             sort={{ last_message_at: -1 }}
             options={{ state: true, watch: true }}
           />
@@ -203,8 +206,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    padding: 10,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -213,9 +215,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 25,
+    fontSize: 30,
     fontFamily: 'Bradley-Hand',
     marginLeft: 20,
+    paddingVertical: 10,
   },
   headerRight: {
     flexDirection: 'row',
@@ -239,12 +242,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   avatar: {
-    width: 30,
-    height: 60,
+    width: 35,
+    height: 70,
   },
   avatarAlt: {
-    width: 30,
-    height: 60,
+    width: 35,
+    height: 70,
   },
   addButton: {
     position: 'absolute',
