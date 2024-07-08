@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, Platform, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
@@ -22,39 +22,9 @@ const HomeScreen = ({ navigation }) => {
     'Bradley-Hand': require('../assets/fonts/bradhitc.ttf'),
   });
 
-  const avatarData = [
-    require('../assets/avatars/sapiens1.png'),
-    require('../assets/avatars/sapiens2.png'),
-    require('../assets/avatars/sapiens3.png'),
-    require('../assets/avatars/sapiens4.png'),
-    require('../assets/avatars/sapiens5.png'),
-    require('../assets/avatars/sapiens6.png'),
-    require('../assets/avatars/sapiens7.png'),
-    require('../assets/avatars/sapiens8.png'),
-    require('../assets/avatars/sapiens9.png'),
-    require('../assets/avatars/sapiens10.png'),
-    require('../assets/avatars/sapiens11.png'),
-    require('../assets/avatars/sapiens12.png'),
-  ];
-  
-  const avatarURLs = [
-    'https://i.postimg.cc/Tw7XxhjH/sapiens1.png',
-    'https://i.postimg.cc/1XbhgTjG/sapiens2.png',
-    'https://i.postimg.cc/C5RpxYmM/sapiens3.png',
-    'https://i.postimg.cc/NMfwZRXH/sapiens4.png',
-    'https://i.postimg.cc/RCYzb6ZW/sapiens5.png',
-    'https://i.postimg.cc/4NhTCfYB/sapiens6.png',
-    'https://i.postimg.cc/jS0YtpNK/sapiens7.png',
-    'https://i.postimg.cc/zGCZBxSh/sapiens8.png',
-    'https://i.postimg.cc/cJdq8fXb/sapiens9.png',
-    'https://i.postimg.cc/s2mkP1LD/sapiens10.png',
-    'https://i.postimg.cc/Y9SJdMcN/sapiens11.png',
-    'https://i.postimg.cc/QtnvPws2/sapiens12.png',
-  ];
-
   useEffect(() => {
     if (session) getProfile();
-  }, [session]);
+  }, [session?.user]);
 
   async function getProfile() {
     try {
@@ -68,7 +38,7 @@ const HomeScreen = ({ navigation }) => {
         .select(`username, avatar_url, contact_number, website`)
         .eq('id', session?.user.id)
         .single();
-        
+
       if (error && status !== 406) {
         throw error;
       }
@@ -113,7 +83,37 @@ const HomeScreen = ({ navigation }) => {
   if (!fontsLoaded || !isUserConnected) {
     return null;
   }
-  
+
+  const avatarData = [
+    require('../assets/avatars/sapiens1.png'),
+    require('../assets/avatars/sapiens2.png'),
+    require('../assets/avatars/sapiens3.png'),
+    require('../assets/avatars/sapiens4.png'),
+    require('../assets/avatars/sapiens5.png'),
+    require('../assets/avatars/sapiens6.png'),
+    require('../assets/avatars/sapiens7.png'),
+    require('../assets/avatars/sapiens8.png'),
+    require('../assets/avatars/sapiens9.png'),
+    require('../assets/avatars/sapiens10.png'),
+    require('../assets/avatars/sapiens11.png'),
+    require('../assets/avatars/sapiens12.png'),
+  ];
+
+  const avatarURLs = [
+    'https://i.postimg.cc/Tw7XxhjH/sapiens1.png',
+    'https://i.postimg.cc/1XbhgTjG/sapiens2.png',
+    'https://i.postimg.cc/C5RpxYmM/sapiens3.png',
+    'https://i.postimg.cc/NMfwZRXH/sapiens4.png',
+    'https://i.postimg.cc/RCYzb6ZW/sapiens5.png',
+    'https://i.postimg.cc/4NhTCfYB/sapiens6.png',
+    'https://i.postimg.cc/jS0YtpNK/sapiens7.png',
+    'https://i.postimg.cc/zGCZBxSh/sapiens8.png',
+    'https://i.postimg.cc/cJdq8fXb/sapiens9.png',
+    'https://i.postimg.cc/s2mkP1LD/sapiens10.png',
+    'https://i.postimg.cc/Y9SJdMcN/sapiens11.png',
+    'https://i.postimg.cc/QtnvPws2/sapiens12.png',
+  ];
+
   const avatarIndex = avatarURLs.indexOf(avatarUrl);
   const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 35,
     height: 70,
+    marginLeft: 10,
   },
   avatarAlt: {
     width: 35,

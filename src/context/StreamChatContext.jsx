@@ -45,7 +45,7 @@ export const StreamChatProvider = ({ children }) => {
     //   }
     //   setIsUserConnected(false);
     // };
-  }, [session, loading]);
+  }, [session?.user]);
 
   const updateUserInStreamChat = async (profile) => {
     if (client.userID) {
