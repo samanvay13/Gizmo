@@ -107,8 +107,23 @@ const ProfileScreen = () => {
   }
 
   const handleLogout = () => {
-    signOut();
-    navigation.navigate('Login');
+    Alert.alert(
+      "Confirm Sign-Out",
+      "Are you sure you want to sign out of this account?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { text: "Logout", onPress: () => {
+            signOut();
+            console.log(session);
+            navigation.navigate('Login');
+          } 
+        }
+      ],
+      { cancelable: false }
+    );
   };
 
   const avatarIndex = avatarURLs.indexOf(avatarUrl);

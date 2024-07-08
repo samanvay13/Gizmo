@@ -23,14 +23,15 @@ const HomeScreen = ({ navigation }) => {
   });
 
   useEffect(() => {
-    if (session) getProfile();
+    getProfile();
   }, [session?.user]);
 
   async function getProfile() {
     try {
       setLoading(true);
       if (!session?.user) {
-        throw new Error('No user on the session!');
+        navigation.navigate("Login");
+        // throw new Error('No user on the session!');
       }
 
       const { data, error, status } = await supabase
@@ -80,6 +81,10 @@ const HomeScreen = ({ navigation }) => {
     setSearchVisible(false);
   };
 
+  const onAddUsersPressed = () => {
+    navigation.navigate('Users');
+  };
+
   if (!fontsLoaded || !isUserConnected) {
     return null;
   }
@@ -117,7 +122,7 @@ const HomeScreen = ({ navigation }) => {
   const avatarIndex = avatarURLs.indexOf(avatarUrl);
   const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
-  const filters = { members: { $in: [session.user.id] } };
+  const filters = { members: { $in: [session?.user?.id] } };
 
   return (
     <OverlayProvider>
@@ -175,6 +180,16 @@ const HomeScreen = ({ navigation }) => {
               filters={filters}
               onSelect={onChannelPressed}
             />
+            <TouchableOpacity style={styles.usersButton} onPress={onAddUsersPressed}>
+              <LinearGradient
+                colors={['#9300ff', '#40006f']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.usersButtonGradient}
+              >
+                <Ionicons name="add-outline" size={30} color="white" />
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
       </Chat>
@@ -185,7 +200,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
@@ -233,7 +248,22 @@ const styles = StyleSheet.create({
   },
   channelList: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
+  },
+  usersButton: {
+    alignSelf: 'flex-end',
+    width: 70,
+    height: 70,
+    right: 20,
+    bottom: 30,
+    borderRadius: 35,
+    elevation: 15,
+    overflow: 'hidden',
+  },
+  usersButtonGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -8,6 +8,7 @@ const client = StreamChat.getInstance(process.env.EXPO_PUBLIC_STREAM_API_KEY);
 
 export const StreamChatProvider = ({ children }) => {
   const [isUserConnected, setIsUserConnected] = useState(false);
+  const [channels, setChannels] = useState([]);
   const { session, loading } = useAuth();
 
   useEffect(() => {
@@ -32,6 +33,8 @@ export const StreamChatProvider = ({ children }) => {
 
         setIsUserConnected(true);
         console.log('User connected:', client.userID);
+
+        await fetchUserChannels();
       } catch (error) {
         console.error('Error connecting user:', error);
       }
@@ -46,6 +49,18 @@ export const StreamChatProvider = ({ children }) => {
     //   setIsUserConnected(false);
     // };
   }, [session?.user]);
+
+  const fetchUserChannels = async () => {
+    if (session?.user?.id) {
+      try {
+        const filters = { members: { $in: [session.user.id] } };
+        const response = await client.queryChannels(filters);
+        setChannels(response);
+      } catch (error) {
+        console.error('Error fetching user channels:', error);
+      }
+    }
+  };
 
   const updateUserInStreamChat = async (profile) => {
     if (client.userID) {
@@ -62,7 +77,7 @@ export const StreamChatProvider = ({ children }) => {
   };
 
   return (
-    <StreamChatContext.Provider value={{ client, isUserConnected, updateUserInStreamChat }}>
+    <StreamChatContext.Provider value={{ client, isUserConnected, updateUserInStreamChat, channels }}>
       {children}
     </StreamChatContext.Provider>
   );
