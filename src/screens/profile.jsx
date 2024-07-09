@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthProvider';
 import { supabase } from '../lib/supabase';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const ProfileScreen = () => {
   const { session, signOut } = useAuth();
@@ -147,61 +148,63 @@ const ProfileScreen = () => {
           <Ionicons name="exit-outline" size={25} color="white" />
         </TouchableOpacity>
       </LinearGradient>
-      <View style={styles.imageContainer}>
-        <Image
-          source={avatarBackground}
-          style={styles.profileImage}
-        />
-        <TouchableOpacity style={styles.editIcon} onPress={() => navigation.navigate('AvatarSelection')}>
-          <Ionicons name="build-outline" size={20} color="white" />
-        </TouchableOpacity>
-      </View>
-      <LinearGradient
-        colors={['#4B0082', '#000']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.profileCard}
-      >
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={session?.user?.email || ''}
-            editable={false}
+      <ScrollView>
+        <View style={styles.imageContainer}>
+          <Image
+            source={avatarBackground}
+            style={styles.profileImage}
           />
+          <TouchableOpacity style={styles.editIcon} onPress={() => navigation.navigate('AvatarSelection')}>
+            <Ionicons name="build-outline" size={20} color="white" />
+          </TouchableOpacity>
         </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Contact Number</Text>
-          <TextInput
-            style={styles.input}
-            value={contact_number || ''}
-            onChangeText={setContact_Number}
-            keyboardType="phone-pad"
-            placeholder='+91 XXXXXXXXXX'
-            placeholderTextColor={'#ccc'}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Website</Text>
-          <TextInput
-            style={styles.input}
-            value={website || ''}
-            onChangeText={setWebsite}
-            placeholder='https://example.com'
-            placeholderTextColor={'#ccc'}
-          />
-        </View>
-        <TouchableOpacity onPress={updateProfile}>
-          <LinearGradient
-            colors={['#00ff7f', '#006400']}
-            style={styles.saveButton}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={styles.saveButtonText}>Save</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </LinearGradient>
+        <LinearGradient
+          colors={['#4B0082', '#000']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.profileCard}
+        >
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              value={session?.user?.email || ''}
+              editable={false}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Contact Number</Text>
+            <TextInput
+              style={styles.input}
+              value={contact_number || ''}
+              onChangeText={setContact_Number}
+              keyboardType="phone-pad"
+              placeholder='+91 XXXXXXXXXX'
+              placeholderTextColor={'#ccc'}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Website</Text>
+            <TextInput
+              style={styles.input}
+              value={website || ''}
+              onChangeText={setWebsite}
+              placeholder='https://example.com'
+              placeholderTextColor={'#ccc'}
+            />
+          </View>
+          <TouchableOpacity onPress={updateProfile}>
+            <LinearGradient
+              colors={['#00ff7f', '#006400']}
+              style={styles.saveButton}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Text style={styles.saveButtonText}>Save</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </LinearGradient>
+      </ScrollView>
     </View>
   );
 };

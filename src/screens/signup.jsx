@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     loginHeader: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 100,
+        marginVertical: 75,
     },
     loginHeaderText: {
         color: '#fff',

@@ -28,7 +28,7 @@ const LoginScreen = () => {
     return (
         <ImageBackground source={{ uri: IMAGE_URI }} style={styles.container}>
             <View style={styles.loginHeader}>
-                <Text style={styles.loginHeaderText}>Gizmo</Text>
+                <Text style={styles.loginHeaderText}>GIZMO</Text>
             </View>
             <View style={styles.loginCard}>
                 <Text style={styles.cardHeaderText}>Sign-In</Text>
@@ -80,8 +80,7 @@ const styles = StyleSheet.create({
     loginHeader: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginVertical: 100,
-        paddingVertical: 30,
+        marginVertical: 90,
     },
     loginHeaderText: {
         color: '#fff',

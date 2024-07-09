@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     marginLeft: 25,
   },
   goButton: {
-    marginTop: 100,
+    marginTop: 40,
     width: 80,
     height: 80,
     borderRadius: 40,
