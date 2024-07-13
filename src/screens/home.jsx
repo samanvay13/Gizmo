@@ -270,6 +270,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: 'auto',
   },
   header: {
     flexDirection: 'row',
