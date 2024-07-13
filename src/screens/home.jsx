@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
@@ -15,7 +15,8 @@ const HomeScreen = ({ navigation }) => {
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [avatarUrl, setAvatarUrl] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const searchBarWidth = useRef(new Animated.Value(0)).current;
 
   const [fontsLoaded] = useFonts({
@@ -79,11 +80,62 @@ const HomeScreen = ({ navigation }) => {
 
   const closeSearchBar = () => {
     setSearchVisible(false);
+    setSearchQuery('');
   };
 
   const onAddUsersPressed = () => {
     navigation.navigate('Users');
   };
+
+  const fetchUsers = async (query) => {
+    if (!query.trim()) {
+      setUsers([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('username', `%${query}%`)
+        .neq('id', session.user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      setUsers(data);
+    } catch (error) {
+      Alert.alert('Error fetching users', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    fetchUsers(query);
+  };
+
+  const onUserPress = async (item) => {
+    try {
+      const channel = client.channel('messaging', {
+        members: [session.user.id, item.id],
+      });
+      await channel.watch();
+      navigation.navigate('Channel', { channelId: channel.id });
+    } catch (error) {
+      console.error('Error creating or watching channel:', error);
+    }
+  };
+
+  const renderUserItem = ({ item }) => (
+    <TouchableOpacity style={styles.userItem} onPress={() => onUserPress(item)}>
+      <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
+      <Text style={styles.username}>{item.username}</Text>
+    </TouchableOpacity>
+  );
 
   if (!fontsLoaded || !isUserConnected) {
     return null;
@@ -122,7 +174,7 @@ const HomeScreen = ({ navigation }) => {
   const avatarIndex = avatarURLs.indexOf(avatarUrl);
   const avatarBackground = avatarIndex !== -1 ? avatarData[avatarIndex] : require('../assets/images/image.png');
 
-  const filters = { members: { $in: [session?.user?.id] } };
+  const filters = { type: 'messaging', members: { $in: [session?.user?.id] } };
 
   return (
     <OverlayProvider>
@@ -148,7 +200,7 @@ const HomeScreen = ({ navigation }) => {
                     style={styles.searchInput}
                     placeholder="Search"
                     value={searchQuery}
-                    onChangeText={setSearchQuery}
+                    onChangeText={handleSearch}
                   />
                   <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => {}}>
                     <Ionicons name="search-outline" size={24} color="#4B0082" />
@@ -164,33 +216,51 @@ const HomeScreen = ({ navigation }) => {
                 {avatarUrl ? (
                   <Image
                     source={avatarBackground}
-                    style={styles.avatar}
+                    style={styles.myAvatar}
                   />
                 ) : (
                   <Image
                     source={require('../assets/images/image.png')}
-                    style={styles.avatarAlt}
+                    style={styles.myAvatarAlt}
                   />
                 )}
               </TouchableOpacity>
             </View>
           </LinearGradient>
           <View style={styles.channelList}>
-            <ChannelList
-              filters={filters}
-              onSelect={onChannelPressed}
-            />
-            <TouchableOpacity style={styles.usersButton} onPress={onAddUsersPressed}>
-              <LinearGradient
-                colors={['#9300ff', '#40006f']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.usersButtonGradient}
-              >
-                <Ionicons name="add-outline" size={30} color="white" />
-              </LinearGradient>
-            </TouchableOpacity>
+            {loading ? (
+              <Text style={styles.placeholderText}>Loading...</Text>
+            ) : searchQuery.trim() === '' ? (
+              <ChannelList filters={filters} onSelect={onChannelPressed} />
+            ) : (
+              <FlatList
+                data={users}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderUserItem}
+                ListEmptyComponent={
+                  <View style={styles.notFound}>
+                    <Image source={require('../assets/avatars/notFound2.png')} style={styles.notFoundImage}></Image>
+                    <TouchableOpacity style={{ paddingRight: 10, marginBottom: 10 }} onPress={() => fetchUsers(searchQuery)}>
+                      <Ionicons name="sad-outline" size={30} color="#4B0082" />
+                    </TouchableOpacity>
+                    <Text style={styles.placeholderText}>
+                      Sorry, couldn't find the one you're looking for.
+                    </Text>
+                  </View>
+                }
+              />
+            )}
           </View>
+          <TouchableOpacity style={styles.usersButton} onPress={onAddUsersPressed}>
+            <LinearGradient
+              colors={['#9300ff', '#40006f']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.usersButtonGradient}
+            >
+              <Ionicons name="add-outline" size={30} color="white" />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </Chat>
     </OverlayProvider>
@@ -200,13 +270,12 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
+    alignItems: 'center',
+    paddingHorizontal: 10,
     paddingVertical: 10,
   },
   headerLeft: {
@@ -214,37 +283,64 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 30,
-    fontWeight: 'bold',
     color: 'white',
+    fontSize: 36,
+    fontFamily: 'Bradley-Hand',
+    marginLeft: 15,
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  avatarContainer: {
+    paddingLeft: 5,
+  },
+  myAvatar: {
+    width: 35,
+    height: 70,
+    marginLeft: 10,
+  },
+  myAvatarAlt: {
+    width: 35,
+    height: 35,
+    marginVertical: 17.5,
+  },
   searchBar: {
+    height: 40,
+    marginRight: 10,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#4B0082',
-    borderRadius: 15,
     backgroundColor: 'white',
   },
   searchInput: {
     flex: 1,
     paddingHorizontal: 10,
-    height: 40,
-    color: '#4B0082',
+    fontSize: 16,
+  },
+  placeholderText: {
+    fontSize: 16,
+    color: '#505050',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   avatar: {
-    width: 35,
-    height: 70,
-    marginLeft: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
   },
-  avatarAlt: {
-    width: 35,
-    height: 35,
-    marginVertical: 17.5,
+  username: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4B0082',
   },
   channelList: {
     flex: 1,
@@ -264,6 +360,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  notFound: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notFoundImage: {
+    marginTop: 100,
+    marginBottom: 50,
+    height: 370,
+    width: 370,
   },
 });
 
