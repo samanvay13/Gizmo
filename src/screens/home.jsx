@@ -229,7 +229,7 @@ const HomeScreen = ({ navigation }) => {
           </LinearGradient>
           <View style={styles.channelList}>
             {loading ? (
-              <ActivityIndicator size="large" color="#4B0082" />
+              <ActivityIndicator size="large" color="#4B0082" style={styles.loader} />
             ) : searchQuery.trim() === '' ? (
               <ChannelList filters={filters} onSelect={onChannelPressed} />
             ) : (
@@ -251,16 +251,19 @@ const HomeScreen = ({ navigation }) => {
               />
             )}
           </View>
-          <TouchableOpacity style={styles.usersButton} onPress={onAddUsersPressed}>
+
+          {/* Add Users Button */}
+          <TouchableOpacity style={styles.addButton} onPress={onAddUsersPressed}>
             <LinearGradient
-              colors={['#9300ff', '#40006f']}
+              colors={['#4B0082', '#000']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.usersButtonGradient}
+              style={styles.addButtonGradient}
             >
-              <Ionicons name="add-outline" size={30} color="white" />
+              <Ionicons name="person-add" size={30} color="white" />
             </LinearGradient>
           </TouchableOpacity>
+
         </View>
       </Chat>
     </OverlayProvider>
@@ -276,7 +279,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingTop: 10,
+    paddingVertical: 5,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -284,7 +288,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: 'white',
-    fontSize: 36,
+    fontSize: 40,
     fontFamily: 'Bradley-Hand',
     marginLeft: 15,
   },
@@ -324,6 +328,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
+  loader: {
+    marginTop: 20,
+  },
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -346,21 +353,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  usersButton: {
-    alignSelf: 'flex-end',
-    width: 70,
-    height: 70,
-    right: 20,
-    bottom: 30,
-    borderRadius: 35,
-    elevation: 15,
-    overflow: 'hidden',
-  },
-  usersButtonGradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   notFound: {
     display: 'flex',
     flexDirection: 'column',
@@ -372,6 +364,24 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     height: 370,
     width: 370,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+  },
+  addButtonGradient: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

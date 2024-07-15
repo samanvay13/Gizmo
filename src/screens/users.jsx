@@ -97,7 +97,7 @@ const UsersScreen = () => {
       </LinearGradient>
       <View style={styles.content}>
         {loading ? (
-          <ActivityIndicator size="large" color="#4B0082" />
+          <ActivityIndicator size="large" color="#4B0082" style={styles.loader} />
         ) : searchQuery.trim() === '' ? (
           <View style={styles.search}>
             <Image source={require('../assets/avatars/search.png')} style={styles.searchImage}></Image>
@@ -172,6 +172,9 @@ const styles = StyleSheet.create({
     color: '#505050',
     textAlign: 'center',
     marginBottom: 10,
+  },
+  loader: {
+    marginTop: 20,
   },
   userItem: {
     flexDirection: 'row',
