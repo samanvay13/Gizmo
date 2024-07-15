@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, StatusBar, FlatList, Image, Alert } from 'react-native';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, StatusBar, FlatList, Image, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -97,7 +97,7 @@ const UsersScreen = () => {
       </LinearGradient>
       <View style={styles.content}>
         {loading ? (
-          <Text style={styles.placeholderText}>Loading...</Text>
+          <ActivityIndicator size="large" color="#4B0082" />
         ) : searchQuery.trim() === '' ? (
           <View style={styles.search}>
             <Image source={require('../assets/avatars/search.png')} style={styles.searchImage}></Image>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert, FlatList } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Animated, TextInput, StatusBar, Alert, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { ChannelList, Chat, OverlayProvider } from 'stream-chat-expo';
@@ -229,7 +229,7 @@ const HomeScreen = ({ navigation }) => {
           </LinearGradient>
           <View style={styles.channelList}>
             {loading ? (
-              <Text style={styles.placeholderText}>Loading...</Text>
+              <ActivityIndicator size="large" color="#4B0082" />
             ) : searchQuery.trim() === '' ? (
               <ChannelList filters={filters} onSelect={onChannelPressed} />
             ) : (
