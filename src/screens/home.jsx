@@ -253,14 +253,14 @@ const HomeScreen = ({ navigation }) => {
           </View>
 
           {/* Add Users Button */}
-          <TouchableOpacity style={styles.addButton} onPress={onAddUsersPressed}>
+          <TouchableOpacity style={styles.addUsersButton} onPress={onAddUsersPressed}>
             <LinearGradient
-              colors={['#4B0082', '#000']}
+              colors={['#5f02a3', '#24013d']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.addButtonGradient}
+              style={styles.addUsersButtonGradient}
             >
-              <Ionicons name="person-add" size={30} color="white" />
+              <Ionicons name="person-add-outline" size={24} color="white" />
             </LinearGradient>
           </TouchableOpacity>
 
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     height: 370,
     width: 370,
   },
-  addButton: {
+  addUsersButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
   },
-  addButtonGradient: {
+  addUsersButtonGradient: {
     width: '100%',
     height: '100%',
     borderRadius: 30,
