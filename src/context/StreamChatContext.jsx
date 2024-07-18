@@ -13,7 +13,7 @@ export const StreamChatProvider = ({ children }) => {
 
   useEffect(() => {
     const connectUser = async () => {
-      if (loading || !session?.user) {
+      if (!session?.user) {
         return;
       }
 
@@ -48,7 +48,7 @@ export const StreamChatProvider = ({ children }) => {
     //   }
     //   setIsUserConnected(false);
     // };
-  }, [session?.user]);
+  }, [session]);
 
   const fetchUserChannels = async () => {
     if (session?.user?.id) {

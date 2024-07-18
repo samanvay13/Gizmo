@@ -255,7 +255,7 @@ const HomeScreen = ({ navigation }) => {
           {/* Add Users Button */}
           <TouchableOpacity style={styles.addUsersButton} onPress={onAddUsersPressed}>
             <LinearGradient
-              colors={['#5f02a3', '#24013d']}
+              colors={['#6900B6', '#24013d']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.addUsersButtonGradient}

@@ -1,16 +1,21 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, Alert } from "react-native";
+import { useFonts } from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from "../context/AuthProvider";
 
 const LoginScreen = () => {
 
     const navigation = useNavigation();
-    const { signIn } = useAuth();
+    const { signIn, isUserLoggedIn } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [fontsLoaded] = useFonts({
+        'Bradley-Hand': require('../assets/fonts/bradhitc.ttf'),
+      });
   
     const handleLogin = async () => {
       setLoading(true);
@@ -18,10 +23,14 @@ const LoginScreen = () => {
         await signIn(email, password);
         navigation.navigate('AvatarSelection');
       } catch (error) {
-        Alert.alert(error.message);
+        Alert.alert(error.message, "Please check your email and password before signing in.");
       }
       setLoading(false);
     };
+
+    if (!fontsLoaded) {
+        return null;
+    }
 
     const IMAGE_URI = 'https://i.pinimg.com/564x/08/6c/d0/086cd0eaa64a5b2b19b9e771f61b2cb9.jpg';
 
@@ -84,8 +93,8 @@ const styles = StyleSheet.create({
     },
     loginHeaderText: {
         color: '#fff',
-        fontSize: 40,
-        fontWeight: 'bold',
+        fontSize: 60,
+        fontFamily: 'Bradley-Hand',
     },
     loginCard: {
         justifyContent: 'center',
