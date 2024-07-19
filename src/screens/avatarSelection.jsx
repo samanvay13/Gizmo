@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthProvider';
 import { supabase } from '../lib/supabase';
+import { useStreamChat } from '../context/StreamChatContext';
 
 const avatarData = [
   require('../assets/avatars/sapiens1.png'),
@@ -42,6 +43,7 @@ const ITEM_SIZE = width * 0.7;
 const AvatarSelectionScreen = () => {
   const { session } = useAuth();
   const navigation = useNavigation();
+  const { updateUserInStreamChat } = useStreamChat();
   const flatListRef = useRef(null);
   const [data, setData] = useState([...avatarData, ...avatarData, ...avatarData]);
   const [selectedIndex, setSelectedIndex] = useState(avatarData.length);
@@ -152,6 +154,10 @@ const AvatarSelectionScreen = () => {
       if (error) {
         throw error;
       }
+
+      // Update the user in Stream Chat
+      await updateUserInStreamChat({ username: pseudonym, avatar_url: avatarUrl });
+
       Alert.alert('Success', 'Profile updated successfully');
       navigation.navigate('Home');
     } catch (error) {
