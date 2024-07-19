@@ -50,6 +50,10 @@ const UsersScreen = () => {
     fetchUsers(query);
   };
 
+  const clearSearchInput = () => {
+    setSearchQuery('');
+  }
+
   const onUserPress = async (item) => {
     try {
       const channel = client.channel('messaging', {
@@ -89,8 +93,8 @@ const UsersScreen = () => {
               value={searchQuery}
               onChangeText={handleSearch}
             />
-            <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => fetchUsers(searchQuery)}>
-              <Ionicons name="search-outline" size={24} color="#4B0082" />
+            <TouchableOpacity style={{ paddingRight: 10 }} onPress={() => clearSearchInput()}>
+              <Ionicons name="close-outline" size={24} color="#4B0082" />
             </TouchableOpacity>
           </View>
         </View>
