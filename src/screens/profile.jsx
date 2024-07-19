@@ -57,6 +57,7 @@ const ProfileScreen = () => {
         navigation.navigate("Login");
         // throw new Error('No user on the session!');
       }
+      
       const { data, error, status } = await supabase
         .from('profiles')
         .select(`username, avatar_url, contact_number, website`)

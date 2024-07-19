@@ -25,7 +25,7 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     getProfile();
-  }, [session?.user]);
+  }, [session]);
 
   async function getProfile() {
     try {

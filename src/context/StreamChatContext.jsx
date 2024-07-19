@@ -2,8 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { StreamChat } from 'stream-chat';
 import { useAuth } from './AuthProvider';
 
+// Create a context for Stream Chat
 const StreamChatContext = createContext();
 
+// Initialize Stream Chat client
 const client = StreamChat.getInstance(process.env.EXPO_PUBLIC_STREAM_API_KEY);
 
 export const StreamChatProvider = ({ children }) => {
@@ -11,6 +13,7 @@ export const StreamChatProvider = ({ children }) => {
   const [channels, setChannels] = useState([]);
   const { session, loading } = useAuth();
 
+  // Connect the user to Stream Chat when session changes
   useEffect(() => {
     const connectUser = async () => {
       if (!session?.user) {
@@ -41,15 +44,9 @@ export const StreamChatProvider = ({ children }) => {
     };
 
     connectUser();
-
-    // return () => {
-    //   if (isUserConnected) {
-    //     client.disconnectUser();
-    //   }
-    //   setIsUserConnected(false);
-    // };
   }, [session]);
 
+  // Fetch channels the user is a member of
   const fetchUserChannels = async () => {
     if (session?.user?.id) {
       try {
@@ -62,6 +59,7 @@ export const StreamChatProvider = ({ children }) => {
     }
   };
 
+  // Update user profile in Stream Chat
   const updateUserInStreamChat = async (profile) => {
     if (client.userID) {
       try {
@@ -76,6 +74,7 @@ export const StreamChatProvider = ({ children }) => {
     }
   };
 
+  // Provide the Stream Chat context to the children components
   return (
     <StreamChatContext.Provider value={{ client, isUserConnected, updateUserInStreamChat, channels }}>
       {children}
@@ -83,4 +82,5 @@ export const StreamChatProvider = ({ children }) => {
   );
 };
 
+// Custom hook to use the Stream Chat context
 export const useStreamChat = () => useContext(StreamChatContext);

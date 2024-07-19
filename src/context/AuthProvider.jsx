@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase.js';
 
+// Create a context for authentication
 const AuthContext = createContext();
 
+// AuthProvider component to provide authentication context
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [user, setUser] = useState(null);
@@ -10,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
+  // Fetch session on initial load and set up auth state change listener
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -33,6 +36,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  // Function to sign in a user
   const signIn = async (email, password) => {
     setLoadingAuth(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -41,6 +45,7 @@ export const AuthProvider = ({ children }) => {
     setLoadingAuth(false);
   };
 
+  // Function to sign up a new user
   const signUp = async (email, password) => {
     setLoadingAuth(true);
     const { data: { session }, error } = await supabase.auth.signUp({ email, password });
@@ -50,6 +55,7 @@ export const AuthProvider = ({ children }) => {
     if (!session) alert('Please check your inbox for email verification!');
   };
 
+  // Function to sign out the user
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -58,10 +64,12 @@ export const AuthProvider = ({ children }) => {
     setIsUserLoggedIn(false);
   };
 
+  // Fetch user profile if session exists
   useEffect(() => {
     if (session?.user) getProfile();
   }, [session]);
 
+  // Function to fetch user profile from Supabase
   async function getProfile() {
     try {
       setLoadingAuth(true);
@@ -89,6 +97,7 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Provide the authentication context to the children components
   return (
     <AuthContext.Provider value={{ session, user, profile, signIn, signUp, signOut, isUserLoggedIn, loadingAuth }}>
       {children}
@@ -96,6 +105,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook to use the authentication context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
