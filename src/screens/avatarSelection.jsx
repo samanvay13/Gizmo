@@ -179,7 +179,7 @@ const AvatarSelectionScreen = () => {
       </TouchableOpacity>
       <View style={styles.avatarHeader}>
         <Text style={styles.avatarHeaderText}>Pseudonym</Text>
-        <Text style={styles.avatarHeaderSubText}>Use a cool avatar and create an anonymous name for yourself!</Text>
+        <Text style={styles.avatarHeaderSubText}>Use a cool avatar and create a fictitious name for yourself!</Text>
       </View>
       <View style={styles.pseudonym}>
         <Text style={styles.preInput}>@ |</Text>

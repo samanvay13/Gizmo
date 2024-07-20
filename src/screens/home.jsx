@@ -10,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
-  const { session } = useAuth();
+  const { session, loadingAuth } = useAuth();
   const [channel, setChannel] = useState(null);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,15 +25,13 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     getProfile();
-  }, [session]);
+    console.log('Home screen loaded, check session:', session)
+  }, [loadingAuth]);
 
   async function getProfile() {
     try {
       setLoading(true);
-      if (!session?.user) {
-        navigation.navigate("Login");
-        // throw new Error('No user on the session!');
-      }
+      
 
       const { data, error, status } = await supabase
         .from('profiles')
@@ -260,7 +258,7 @@ const HomeScreen = ({ navigation }) => {
               end={{ x: 1, y: 1 }}
               style={styles.addUsersButtonGradient}
             >
-              <Ionicons name="person-add-outline" size={24} color="white" />
+              <Ionicons name="add-outline" size={30} color="white" />
             </LinearGradient>
           </TouchableOpacity>
 

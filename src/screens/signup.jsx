@@ -21,7 +21,7 @@ const SignupScreen = () => {
             navigation.navigate('Login');
           }
         } catch (error) {
-          Alert.alert(error.message);
+          Alert.alert(error.message, "Please check your credentials.");
         }
         setLoading(false);
       };
