@@ -10,8 +10,7 @@ const client = StreamChat.getInstance(process.env.EXPO_PUBLIC_STREAM_API_KEY);
 
 export const StreamChatProvider = ({ children }) => {
   const [isUserConnected, setIsUserConnected] = useState(false);
-  const [channels, setChannels] = useState([]);
-  const { session, loading } = useAuth();
+  const { session } = useAuth();
 
   // Connect the user to Stream Chat when session changes
   useEffect(() => {
@@ -37,27 +36,13 @@ export const StreamChatProvider = ({ children }) => {
         setIsUserConnected(true);
         console.log('User connected:', client.userID);
 
-        await fetchUserChannels();
       } catch (error) {
         console.error('Error connecting user:', error);
       }
     };
 
     connectUser();
-  }, [session]);
-
-  // Fetch channels the user is a member of
-  const fetchUserChannels = async () => {
-    if (session?.user?.id) {
-      try {
-        const filters = { members: { $in: [session.user.id] } };
-        const response = await client.queryChannels(filters);
-        setChannels(response);
-      } catch (error) {
-        console.error('Error fetching user channels:', error);
-      }
-    }
-  };
+  }, [session?.user]);
 
   // Update user profile in Stream Chat
   const updateUserInStreamChat = async (profile) => {
@@ -76,7 +61,7 @@ export const StreamChatProvider = ({ children }) => {
 
   // Provide the Stream Chat context to the children components
   return (
-    <StreamChatContext.Provider value={{ client, isUserConnected, updateUserInStreamChat, channels }}>
+    <StreamChatContext.Provider value={{ client, isUserConnected, updateUserInStreamChat }}>
       {children}
     </StreamChatContext.Provider>
   );

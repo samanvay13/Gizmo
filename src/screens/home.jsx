@@ -10,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = ({ navigation }) => {
   const { client, isUserConnected } = useStreamChat();
-  const { session, loadingAuth } = useAuth();
+  const { session } = useAuth();
   const [channel, setChannel] = useState(null);
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,13 +25,11 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     getProfile();
-    console.log('Home screen loaded, check session:', session)
-  }, [loadingAuth]);
+  }, [session]);
 
   async function getProfile() {
     try {
       setLoading(true);
-      
 
       const { data, error, status } = await supabase
         .from('profiles')
