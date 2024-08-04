@@ -54,7 +54,6 @@ const ProfileScreen = () => {
     try {
       setLoading(true);
       if (!session?.user) {
-        navigation.navigate("Login");
         // throw new Error('No user on the session!');
       }
       

@@ -29,12 +29,7 @@
     },
     "plugins": [
       [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/bradhitc.tff"
-          ]
-        }
+        "expo-font"
       ]
     ],
     "extra": {
